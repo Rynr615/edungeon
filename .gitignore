@@ -1,0 +1,19 @@
+# .gitignore (di folder root edungeon/)
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+serviceAccountKey.json
+
+# Build Outputs & Temporary Files
+dist/
+build/
+.expo/
+*.log
+.DS_Store
+Thumbs.db

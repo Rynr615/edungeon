@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Impor konfigurasi firebase agar terinisialisasi saat server berjalan
-import "./config/firebase";
+import "./config/firebase.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,6 +15,9 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use("/api/user", userRoutes);
 
 // Endpoint Health Check
 app.get("/api/health", (req: Request, res: Response) => {

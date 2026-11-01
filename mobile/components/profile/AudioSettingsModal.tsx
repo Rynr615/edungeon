@@ -59,42 +59,42 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-black/75 justify-center items-center p-5">
-        <View className="w-full max-w-sm bg-surface border border-surface-light rounded-3xl p-6 shadow-2xl">
+      <View className="flex-1 bg-black/60 justify-center items-center p-5">
+        <View className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-gray-100">
           {/* Header */}
-          <View className="flex-row items-center justify-between pb-4 border-b border-surface-light/60 mb-5">
+          <View className="flex-row items-center justify-between pb-4 border-b border-gray-100 mb-5">
             <View className="flex-row items-center">
-              <View className="w-10 h-10 rounded-xl bg-primary/20 items-center justify-center mr-3">
-                <Icon name="SpeakerWaveIcon" variant="solid" size={22} color="#3b82f6" />
+              <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center mr-3">
+                <Icon name="SpeakerWaveIcon" variant="solid" size={22} color="#0f172a" />
               </View>
               <View>
-                <Text className="text-text font-bold text-lg">Pengaturan Suara</Text>
-                <Text className="text-subtext text-xs">Audio BGM & SFX Dungeon</Text>
+                <Text className="text-[#0f172a] font-bold text-lg">Pengaturan Suara</Text>
+                <Text className="text-gray-500 text-xs">Audio BGM & SFX Dungeon</Text>
               </View>
             </View>
             <TouchableOpacity
               onPress={onClose}
               disabled={loading}
-              className="w-8 h-8 rounded-full bg-surface-light/60 items-center justify-center"
+              className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center"
             >
-              <Icon name="XMarkIcon" variant="outline" size={18} color="#94a3b8" />
+              <Icon name="XMarkIcon" variant="outline" size={18} color="#64748b" />
             </TouchableOpacity>
           </View>
 
           {/* Toggle Switch Audio Aktif */}
-          <View className="bg-background/80 p-4 rounded-2xl border border-surface-light/50 flex-row items-center justify-between mb-5">
+          <View className="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex-row items-center justify-between mb-5">
             <View className="flex-1 mr-3">
-              <Text className="text-text font-semibold text-sm">
+              <Text className="text-[#0f172a] font-semibold text-sm">
                 Efek Suara & Musik
               </Text>
-              <Text className="text-subtext text-xs mt-0.5">
+              <Text className="text-gray-500 text-xs mt-0.5">
                 Nyalakan musik latar & SFX
               </Text>
             </View>
             <Switch
               value={enabled}
               onValueChange={setEnabled}
-              trackColor={{ false: "#334155", true: "#2563eb" }}
+              trackColor={{ false: "#e2e8f0", true: "#0f172a" }}
               thumbColor={enabled ? "#ffffff" : "#94a3b8"}
             />
           </View>
@@ -102,18 +102,18 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
           {/* Volume Stepper & Presets */}
           <View className="mb-6 opacity-100">
             <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-subtext text-xs font-bold uppercase tracking-wider">
+              <Text className="text-gray-500 text-xs font-bold uppercase tracking-wider">
                 Volume Master
               </Text>
-              <Text className="text-exp font-bold text-sm">
+              <Text className="text-[#0f172a] font-bold text-sm">
                 {enabled ? `${volumePercent}%` : "Dibisukan (Mute)"}
               </Text>
             </View>
 
             {/* Visual Volume Bar */}
-            <View className="w-full bg-surface-light h-3 rounded-full overflow-hidden mb-3">
+            <View className="w-full bg-gray-200 h-3 rounded-full overflow-hidden mb-3">
               <View
-                className="bg-primary h-full rounded-full"
+                className="bg-[#38bdf8] h-full rounded-full"
                 style={{ width: enabled ? `${volumePercent}%` : "0%" }}
               />
             </View>
@@ -132,13 +132,13 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
                     activeOpacity={0.7}
                     className={`px-2.5 py-1.5 rounded-lg border ${
                       isSelected
-                        ? "bg-primary border-primary"
-                        : "bg-background border-surface-light/60"
+                        ? "bg-[#0f172a] border-[#0f172a]"
+                        : "bg-white border-gray-200"
                     } ${!enabled ? "opacity-40" : ""}`}
                   >
                     <Text
                       className={`text-[11px] font-bold ${
-                        isSelected ? "text-white" : "text-subtext"
+                        isSelected ? "text-white" : "text-gray-700"
                       }`}
                     >
                       {percent}%
@@ -155,16 +155,16 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
               onPress={onClose}
               disabled={loading}
               activeOpacity={0.7}
-              className="flex-1 bg-surface-light/60 py-3.5 rounded-xl items-center mr-2 border border-surface-light"
+              className="flex-1 bg-gray-100 py-3.5 rounded-xl items-center mr-2 border border-gray-200"
             >
-              <Text className="text-subtext font-bold text-base">Batal</Text>
+              <Text className="text-gray-700 font-bold text-base">Batal</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleSave}
               disabled={loading}
               activeOpacity={0.8}
-              className="flex-1 bg-primary py-3.5 rounded-xl items-center flex-row justify-center ml-2 shadow-md"
+              className="flex-1 bg-[#0f172a] py-3.5 rounded-xl items-center flex-row justify-center ml-2 shadow-md"
             >
               {loading ? (
                 <ActivityIndicator color="#ffffff" size="small" />

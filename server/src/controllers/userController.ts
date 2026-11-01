@@ -127,7 +127,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const { nama, kelas, avatar } = req.body;
+    const { nama, nama_panggilan, kelas, no_hp, avatar } = req.body;
 
     if (!nama || String(nama).trim().length < 2) {
       res.status(400).json({ status: "error", message: "Nama minimal 2 karakter" });
@@ -139,8 +139,16 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       updated_at: new Date().toISOString(),
     };
 
+    if (nama_panggilan) {
+      updateData.nama_panggilan = String(nama_panggilan).trim();
+    }
+
     if (kelas) {
       updateData.kelas = String(kelas).trim();
+    }
+
+    if (no_hp) {
+      updateData.no_hp = String(no_hp).trim();
     }
 
     if (avatar) {

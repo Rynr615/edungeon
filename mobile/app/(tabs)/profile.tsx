@@ -2,20 +2,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
-  Text,
   ScrollView,
   RefreshControl,
-  TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Text,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import {
   UserProfile,
   ProfileStats,
-  BadgeItem,
-  CardCollectionItem,
-  LeaderboardUser,
   EditProfilePayload,
   AudioSettingsPayload,
 } from "../../types/profile";
@@ -23,36 +19,31 @@ import { profileService, calculateProfileStats } from "../../services/profileSer
 import {
   ProfileHeader,
   StatOverviewCard,
-  CardCollectionGrid,
-  BadgeGallery,
-  EditProfileModal,
+  KoleksiCard,
+  ProfileMenuList,
+  EditProfileView,
   AudioSettingsModal,
-  LeaderboardModal,
 } from "../../components/profile";
-import { Icon } from "../../components/ui/Icon";
 
 export default function ProfileScreen() {
   const { userProfile, logoutUser, updateLocalProfile } = useAuth();
 
-  // State Data Profil & Game
+  // Navigation view: "main" (Image 2) vs "edit_profile" (Image 1)
+  const [currentView, setCurrentView] = useState<"main" | "edit_profile">("main");
+
+  // State Data Profil
   const [activeUser, setActiveUser] = useState<UserProfile | null>(userProfile);
   const [stats, setStats] = useState<ProfileStats | null>(
     userProfile ? calculateProfileStats(userProfile) : null
   );
-  const [badges, setBadges] = useState<BadgeItem[]>([]);
-  const [cards, setCards] = useState<CardCollectionItem[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
 
-  // State Modal & Loading
+  // Modal & Loading States
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false);
-  const [isLeaderboardModalVisible, setIsLeaderboardModalVisible] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState<boolean>(false);
 
-  // Sinkronisasi jika context userProfile berubah
+  // Sinkronisasi data saat userProfile context berubah
   useEffect(() => {
     if (userProfile) {
       setActiveUser(userProfile);
@@ -60,16 +51,14 @@ export default function ProfileScreen() {
     }
   }, [userProfile]);
 
-  // Load Data Profil Lengkap
+  // Load Data Profil dari Server
   const loadProfileData = useCallback(async () => {
     try {
       const fullData = await profileService.getFullProfileData();
       setActiveUser(fullData.user);
       setStats(fullData.stats);
-      setBadges(fullData.badges);
-      setCards(fullData.cards);
     } catch (error) {
-      console.warn("[ProfileScreen] Menggunakan fallback data profil lokal:", error);
+      console.warn("[ProfileScreen] Fallback data lokal:", error);
       if (userProfile) {
         setActiveUser(userProfile);
         setStats(calculateProfileStats(userProfile));
@@ -84,28 +73,12 @@ export default function ProfileScreen() {
     loadProfileData();
   }, [loadProfileData]);
 
-  // Pull-to-refresh
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadProfileData();
   }, [loadProfileData]);
 
-  // Buka Modal Leaderboard & Fetch Data
-  const handleOpenLeaderboard = async () => {
-    setIsLeaderboardModalVisible(true);
-    setLoadingLeaderboard(true);
-    try {
-      const res = await profileService.getLeaderboard();
-      setLeaderboard(res.leaderboard);
-    } catch (err: any) {
-      console.error("[ProfileScreen] Error load leaderboard:", err);
-      Alert.alert("Info", "Gagal memuat papan peringkat terbaru. Periksa koneksi internet.");
-    } finally {
-      setLoadingLeaderboard(false);
-    }
-  };
-
-  // Simpan Edit Profil
+  // Handler Simpan Data Edit Profil
   const handleSaveProfile = async (payload: EditProfilePayload) => {
     setIsSaving(true);
     try {
@@ -113,17 +86,17 @@ export default function ProfileScreen() {
       setActiveUser(updated);
       setStats(calculateProfileStats(updated));
       updateLocalProfile(updated);
-      Alert.alert("Berhasil", "Profil siswa berhasil diperbarui!");
+      Alert.alert("Sukses", "Informasi profil berhasil diperbarui!");
     } catch (err: any) {
-      console.error("[ProfileScreen] Gagal update profil:", err);
-      Alert.alert("Gagal", err.message || "Gagal memperbarui profil siswa.");
+      console.error("[ProfileScreen] Error update profile:", err);
+      Alert.alert("Gagal", err.message || "Gagal memperbarui profil.");
       throw err;
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Simpan Pengaturan Suara
+  // Handler Simpan Pengaturan Suara
   const handleSaveSettings = async (payload: AudioSettingsPayload) => {
     setIsSaving(true);
     try {
@@ -137,9 +110,9 @@ export default function ProfileScreen() {
         setActiveUser(updated);
         updateLocalProfile(updated);
       }
-      Alert.alert("Berhasil", "Pengaturan suara berhasil disimpan!");
+      Alert.alert("Sukses", "Pengaturan suara berhasil disimpan!");
     } catch (err: any) {
-      console.error("[ProfileScreen] Gagal simpan pengaturan suara:", err);
+      console.error("[ProfileScreen] Error update settings:", err);
       Alert.alert("Gagal", err.message || "Gagal menyimpan pengaturan suara.");
       throw err;
     } finally {
@@ -147,7 +120,7 @@ export default function ProfileScreen() {
     }
   };
 
-  // Konfirmasi Logout
+  // Handler Konfirmasi Logout
   const handleLogoutPress = () => {
     Alert.alert(
       "Konfirmasi Keluar",
@@ -171,83 +144,64 @@ export default function ProfileScreen() {
 
   if (loading && !activeUser) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color="#eab308" />
-        <Text className="text-subtext text-xs mt-3">Memuat Profil Siswa...</Text>
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#0f172a" />
+        <Text className="text-gray-500 text-xs mt-3 font-mono">Memuat Profil...</Text>
       </View>
     );
   }
 
+  // JIKA TAMPILAN: EDIT PROFILE (IMAGE 1)
+  if (currentView === "edit_profile") {
+    return (
+      <View className="flex-1 bg-white">
+        <EditProfileView
+          user={activeUser}
+          onBack={() => setCurrentView("main")}
+          onSave={handleSaveProfile}
+          loading={isSaving}
+        />
+      </View>
+    );
+  }
+
+  // TAMPILAN UTAMA: PROFILE WIREFRAME (IMAGE 2)
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-white">
       <ScrollView
-        className="flex-1 px-4 pt-12"
+        className="flex-1 px-5 pt-8"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#eab308"
-            colors={["#eab308"]}
+            tintColor="#0f172a"
+            colors={["#0f172a"]}
           />
         }
       >
-        {/* 1. Header Profil (Avatar, EXP Bar, Edit & Settings Action) */}
+        {/* 1. Header Profil (Title "Profile", Avatar, Nama, ⭐ Level 15, Cog Button, 30% Progress Bar) */}
         <ProfileHeader
           user={activeUser}
           stats={stats}
-          onEditPress={() => setIsEditModalVisible(true)}
           onSettingsPress={() => setIsSettingsModalVisible(true)}
         />
 
-        {/* 2. Grid 2x2 Statistik Game (Total EXP, Monster Kalah, Akurasi, Boss Kalah) */}
+        {/* 2. Section "Statistik" (2x2 Grid: 24 Monster, 2 Boss, 85% Akurasi, 3-1 Stage) */}
         <StatOverviewCard stats={stats} />
 
-        {/* 3. Tombol Buka Papan Peringkat (Leaderboard) */}
-        <TouchableOpacity
-          onPress={handleOpenLeaderboard}
-          activeOpacity={0.8}
-          className="bg-amber-500/15 border border-amber-500/40 p-4 rounded-2xl flex-row items-center justify-between mb-6 shadow-sm"
-        >
-          <View className="flex-row items-center">
-            <View className="w-10 h-10 rounded-xl bg-amber-500/20 items-center justify-center mr-3">
-              <Icon name="TrophyIcon" variant="solid" size={22} color="#eab308" />
-            </View>
-            <View>
-              <Text className="text-text font-bold text-base">Papan Peringkat Siswa</Text>
-              <Text className="text-subtext text-xs">Lihat 10 Besar Jawara Se-Sekolah</Text>
-            </View>
-          </View>
-          <Icon name="ChevronRightIcon" variant="outline" size={20} color="#eab308" />
-        </TouchableOpacity>
+        {/* 3. Section "Koleksi" (3 Buff Cards: ATK+2, HP+15, DEF+4 + 4 Badges Bulat) */}
+        <KoleksiCard />
 
-        {/* 4. Koleksi 12 Kartu Power-Up (K01 - K12) */}
-        <CardCollectionGrid cards={cards} />
-
-        {/* 5. Galeri 15 Lencana Prestasi (B01 - B15) */}
-        <BadgeGallery badges={badges} />
-
-        {/* 6. Tombol Keluar / Log Out */}
-        <TouchableOpacity
-          onPress={handleLogoutPress}
-          activeOpacity={0.8}
-          className="bg-red-500/10 border border-red-500/30 p-4 rounded-2xl flex-row items-center justify-center mb-16"
-        >
-          <Icon name="ArrowRightOnRectangleIcon" variant="outline" size={20} color="#ef4444" />
-          <Text className="text-red-400 font-bold text-base ml-2">Keluar Akun</Text>
-        </TouchableOpacity>
+        {/* 4. Menu List (Edit Profile dengan ⚠️, Settings, Log out) */}
+        <ProfileMenuList
+          onEditProfilePress={() => setCurrentView("edit_profile")}
+          onSettingsPress={() => setIsSettingsModalVisible(true)}
+          onLogoutPress={handleLogoutPress}
+        />
       </ScrollView>
 
-      {/* MODAL 1: Edit Profil */}
-      <EditProfileModal
-        visible={isEditModalVisible}
-        user={activeUser}
-        onClose={() => setIsEditModalVisible(false)}
-        onSave={handleSaveProfile}
-        loading={isSaving}
-      />
-
-      {/* MODAL 2: Pengaturan Suara */}
+      {/* Modal Pengaturan Suara (Clean White Wireframe) */}
       <AudioSettingsModal
         visible={isSettingsModalVisible}
         audioAktif={activeUser?.audio_aktif ?? true}
@@ -255,15 +209,6 @@ export default function ProfileScreen() {
         onClose={() => setIsSettingsModalVisible(false)}
         onSave={handleSaveSettings}
         loading={isSaving}
-      />
-
-      {/* MODAL 3: Leaderboard */}
-      <LeaderboardModal
-        visible={isLeaderboardModalVisible}
-        onClose={() => setIsLeaderboardModalVisible(false)}
-        leaderboardData={leaderboard}
-        currentUser={activeUser}
-        loading={loadingLeaderboard}
       />
     </View>
   );

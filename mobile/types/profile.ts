@@ -13,15 +13,18 @@ export type HeroClass = "knight" | "mage" | "archer";
 export interface UserProfile {
   id_user: string;
   nama: string;
+  nama_panggilan?: string;
   username: string;
   email: string;
   kelas: string;
+  no_hp?: string;
   total_exp: number;
   level: number;
   jumlah_benar: number;
   jumlah_jawaban: number;
   monster_dikalahkan: number;
   boss_dikalahkan: number;
+  stage_selesai?: string;
   audio_aktif: boolean;
   volume_audio: number; // Skala 0.0 - 1.0 (0% - 100%)
   avatar_class?: HeroClass | string;
@@ -39,6 +42,7 @@ export interface ProfileStats {
   persentase_level: number; // 0 - 100% untuk progress bar
   monster_dikalahkan: number;
   boss_dikalahkan: number;
+  stage_selesai: string; // e.g. "3-1"
   akurasi: number; // (jumlah_benar / jumlah_jawaban) * 100% (0 jika belum ada jawaban)
   jumlah_benar: number;
   jumlah_jawaban: number;
@@ -49,7 +53,9 @@ export interface ProfileStats {
  */
 export interface EditProfilePayload {
   nama: string;
+  nama_panggilan?: string;
   kelas: string;
+  no_hp?: string;
   avatar_class?: HeroClass | string;
 }
 

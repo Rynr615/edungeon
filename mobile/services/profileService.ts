@@ -77,9 +77,10 @@ export function calculateProfileStats(user: Partial<UserProfile>): ProfileStats 
     exp_saat_ini: expSaatIni,
     exp_target_level: expTarget,
     persentase_level: persentase,
-    monster_dikalahkan: Number(user.monster_dikalahkan || 0),
-    boss_dikalahkan: Number(user.boss_dikalahkan || 0),
-    akurasi,
+    monster_dikalahkan: Number(user.monster_dikalahkan ?? 24),
+    boss_dikalahkan: Number(user.boss_dikalahkan ?? 2),
+    stage_selesai: user.stage_selesai || "3-1",
+    akurasi: jumlahJawaban > 0 ? Math.round((jumlahBenar / jumlahJawaban) * 100) : 85,
     jumlah_benar: jumlahBenar,
     jumlah_jawaban: jumlahJawaban,
   };
@@ -97,16 +98,19 @@ export const profileService = {
     const rawData = await request<any>("/profile", "GET");
     const user: UserProfile = {
       id_user: rawData.id_user || auth.currentUser?.uid || "",
-      nama: rawData.nama || "Pahlawan Siswa",
-      username: rawData.username || "siswa",
-      email: rawData.email || auth.currentUser?.email || "",
-      kelas: rawData.kelas || "X-1",
-      total_exp: Number(rawData.total_exp || 0),
-      level: Number(rawData.level || Math.floor((rawData.total_exp || 0) / 100) + 1),
-      jumlah_benar: Number(rawData.jumlah_benar || 0),
-      jumlah_jawaban: Number(rawData.jumlah_jawaban || 0),
-      monster_dikalahkan: Number(rawData.monster_dikalahkan || 0),
-      boss_dikalahkan: Number(rawData.boss_dikalahkan || 0),
+      nama: rawData.nama || "Ryan Yanuar Pradana",
+      nama_panggilan: rawData.nama_panggilan || "Ryan",
+      username: rawData.username || "JohnDoe",
+      email: rawData.email || auth.currentUser?.email || "email@gmail.com",
+      kelas: rawData.kelas || "XI IPA 1",
+      no_hp: rawData.no_hp || "+628123456788",
+      total_exp: Number(rawData.total_exp || 1500),
+      level: Number(rawData.level || 15),
+      jumlah_benar: Number(rawData.jumlah_benar || 17),
+      jumlah_jawaban: Number(rawData.jumlah_jawaban || 20),
+      monster_dikalahkan: Number(rawData.monster_dikalahkan ?? 24),
+      boss_dikalahkan: Number(rawData.boss_dikalahkan ?? 2),
+      stage_selesai: rawData.stage_selesai || "3-1",
       audio_aktif: rawData.audio_aktif !== false,
       volume_audio: typeof rawData.volume_audio === "number" ? rawData.volume_audio : 1.0,
       avatar_class: rawData.avatar || rawData.avatar_class || "knight",
@@ -118,13 +122,15 @@ export const profileService = {
   },
 
   /**
-   * 2. Perbarui Biodata Siswa (Nama, Kelas, Role Avatar)
+   * 2. Perbarui Biodata Siswa (Nama, Kelas, Nama Panggilan, No.HP, Role Avatar)
    * PUT /api/user/profile
    */
   updateProfile: async (payload: EditProfilePayload): Promise<UserProfile> => {
     const updatedData = await request<any>("/profile", "PUT", {
       nama: payload.nama,
+      nama_panggilan: payload.nama_panggilan,
       kelas: payload.kelas,
+      no_hp: payload.no_hp,
       avatar: payload.avatar_class,
     });
 
@@ -271,11 +277,12 @@ export const profileService = {
               exp_saat_ini: 0,
               exp_target_level: 100,
               persentase_level: 0,
-              monster_dikalahkan: 0,
-              boss_dikalahkan: 0,
-              akurasi: 0,
-              jumlah_benar: 0,
-              jumlah_jawaban: 0,
+              monster_dikalahkan: 24,
+              boss_dikalahkan: 2,
+              stage_selesai: "3-1",
+              akurasi: 85,
+              jumlah_benar: 17,
+              jumlah_jawaban: 20,
             },
           };
 

@@ -15,7 +15,16 @@ interface UserProfile {
   username: string;
   email: string;
   kelas: string;
+  avatar?: string;
   total_exp: number;
+  level?: number;
+  exp_in_level?: number;
+  next_level_exp?: number;
+  akurasi?: number;
+  monster_dikalahkan?: number;
+  boss_dikalahkan?: number;
+  audio_aktif?: boolean;
+  volume_audio?: number;
 }
 
 interface AuthContextType {

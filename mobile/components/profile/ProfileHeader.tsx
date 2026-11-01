@@ -1,6 +1,6 @@
 // mobile/components/profile/ProfileHeader.tsx
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { UserProfile } from "../../types/profile";
 import { Icon } from "../ui/Icon";
 
@@ -13,11 +13,18 @@ interface ProfileHeaderProps {
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   profile,
   onPressSettings,
+  onPressEdit,
 }) => {
   const level = profile?.level ?? 1;
   const expInLevel = profile?.exp_in_level ?? (profile?.total_exp ? profile.total_exp % 100 : 0);
   const nextLevelExp = profile?.next_level_exp || 100;
   const expPercentage = Math.min(Math.round((expInLevel / nextLevelExp) * 100), 100);
+
+  const hasCustomPhoto =
+    profile?.avatar &&
+    (profile.avatar.startsWith("http") ||
+      profile.avatar.startsWith("data:") ||
+      profile.avatar.startsWith("file:"));
 
   return (
     <View className="mb-4">
@@ -26,9 +33,21 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         {/* Left: Avatar & Identity */}
         <View className="flex-row items-center flex-1">
           {/* Avatar Circle */}
-          <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mr-4">
-            <Icon name="UserIcon" variant="solid" size={34} color="#1e293b" />
-          </View>
+          <TouchableOpacity
+            onPress={onPressEdit}
+            activeOpacity={0.8}
+            className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mr-4 overflow-hidden border border-gray-200 shadow-xs"
+          >
+            {hasCustomPhoto ? (
+              <Image
+                source={{ uri: profile!.avatar }}
+                className="w-full h-full rounded-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <Icon name="UserIcon" variant="solid" size={34} color="#1e293b" />
+            )}
+          </TouchableOpacity>
 
           {/* Name & Level */}
           <View className="flex-1">

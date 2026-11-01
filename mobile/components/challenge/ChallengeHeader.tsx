@@ -8,10 +8,16 @@ import { s } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 export function ChallengeHeader({ back = false }: { back?: boolean }) {
-  const { userProfile } = useAuth();
+  const { userProfile, fetchProfile } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  useFocusEffect(useCallback(()=>{StatusBar.setStyle('dark');return()=>StatusBar.setStyle('auto');},[]));
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setStyle("dark");
+      void fetchProfile();
+      return () => StatusBar.setStyle("auto");
+    }, [fetchProfile])
+  );
   return (
     <View
       style={[
@@ -43,13 +49,29 @@ export function ChallengeHeader({ back = false }: { back?: boolean }) {
         <Text style={s.label}>
           Lvl {Math.floor((userProfile?.total_exp || 0) / 100) + 1}
         </Text>
-        <SvgUri
-          uri={
-            Image.resolveAssetSource(
-              require("../../assets/challenge/avatar.svg"),
-            ).uri
-          }
-        />
+        <Pressable
+          accessibilityLabel="Buka profil pengguna"
+          onPress={() => router.push("/(tabs)/profile" as any)}
+          style={{ marginLeft: 8 }}
+        >
+          {userProfile?.avatar &&
+          (userProfile.avatar.startsWith("http") ||
+            userProfile.avatar.startsWith("data:") ||
+            userProfile.avatar.startsWith("file:")) ? (
+            <Image
+              source={{ uri: userProfile.avatar }}
+              style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, borderColor: "#ca8a04" }}
+            />
+          ) : (
+            <SvgUri
+              uri={
+                Image.resolveAssetSource(
+                  require("../../assets/challenge/avatar.svg"),
+                ).uri
+              }
+            />
+          )}
+        </Pressable>
       </View>
     </View>
   );

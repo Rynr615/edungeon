@@ -1,5 +1,5 @@
 // mobile/app/profile/edit.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,10 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../context/AuthContext";
 import { profileService } from "../../services/profileService";
 import { Icon } from "../../components/ui/Icon";
@@ -25,21 +27,127 @@ export default function EditProfileScreen() {
   );
   const [kelas, setKelas] = useState(userProfile?.kelas || "");
   const [noHp, setNoHp] = useState(userProfile?.no_hp || "");
+  const [avatar, setAvatar] = useState(userProfile?.avatar || "");
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (userProfile) {
       if (userProfile.nama) setNama(userProfile.nama);
       if (userProfile.nama_panggilan) setNamaPanggilan(userProfile.nama_panggilan);
       if (userProfile.kelas) setKelas(userProfile.kelas);
       if (userProfile.no_hp) setNoHp(userProfile.no_hp);
+      if (userProfile.avatar) setAvatar(userProfile.avatar);
     }
   }, [userProfile]);
 
   const level = userProfile?.level ?? 1;
   const username = userProfile?.username || "pahlawan";
   const email = userProfile?.email || "siswa@edungeon.com";
+
+  const hasCustomPhoto =
+    avatar &&
+    (avatar.startsWith("http") ||
+      avatar.startsWith("data:") ||
+      avatar.startsWith("file:"));
+
+  // 1. Pilih Foto dari Galeri HP
+  const pickImage = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          "Izin Ditolak",
+          "Aplikasi memerlukan izin galeri untuk memilih foto profil."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.4,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const photoData = asset.base64
+          ? `data:image/jpeg;base64,${asset.base64}`
+          : asset.uri;
+
+        setAvatar(photoData);
+        await saveAvatarToDb(photoData);
+      }
+    } catch (err: any) {
+      console.error("[pickImage] Error:", err);
+      Alert.alert("Gagal", err.message || "Gagal membuka galeri foto");
+    }
+  };
+
+  // 2. Ambil Foto Baru Menggunakan Kamera
+  const takePhoto = async () => {
+    try {
+      const cameraPerm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!cameraPerm.granted) {
+        Alert.alert(
+          "Izin Ditolak",
+          "Aplikasi memerlukan izin kamera untuk mengambil foto profil baru."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.4,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const photoData = asset.base64
+          ? `data:image/jpeg;base64,${asset.base64}`
+          : asset.uri;
+
+        setAvatar(photoData);
+        await saveAvatarToDb(photoData);
+      }
+    } catch (err: any) {
+      console.error("[takePhoto] Error:", err);
+      Alert.alert("Gagal", err.message || "Gagal membuka kamera");
+    }
+  };
+
+  // 3. Simpan Foto Langsung ke Cloud Firestore Database
+  const saveAvatarToDb = async (photoData: string) => {
+    try {
+      setSaving(true);
+      await profileService.updateProfile({
+        nama: (nama || userProfile?.nama || "Pahlawan").trim(),
+        avatar: photoData,
+      });
+      await fetchProfile();
+      Alert.alert("Berhasil", "Foto profil berhasil diperbarui dan tersimpan di database!");
+    } catch (err: any) {
+      Alert.alert("Gagal Menyimpan Foto", err.message || "Terjadi kesalahan pada server");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePhotoOptions = () => {
+    Alert.alert(
+      "Ganti Foto Profil",
+      "Pilih sumber foto profil kamu:",
+      [
+        { text: "Batal", style: "cancel" },
+        { text: "Pilih dari Galeri", onPress: pickImage },
+        { text: "Ambil Foto (Kamera)", onPress: takePhoto },
+      ]
+    );
+  };
 
   const handleSave = async () => {
     if (!nama.trim() || nama.trim().length < 2) {
@@ -54,6 +162,7 @@ export default function EditProfileScreen() {
         nama_panggilan: namaPanggilan.trim(),
         kelas: kelas.trim(),
         no_hp: noHp.trim(),
+        avatar,
       });
       await fetchProfile();
       setIsEditing(false);
@@ -82,11 +191,36 @@ export default function EditProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Centered Identity: Avatar, Name, Level 15 */}
+        {/* Centered Identity: Avatar dengan Tombol Ganti Foto, Name, Level */}
         <View className="items-center my-3">
-          <View className="w-20 h-20 rounded-full bg-slate-100 items-center justify-center mb-2 shadow-xs">
-            <Icon name="UserIcon" variant="solid" size={42} color="#1e293b" />
-          </View>
+          <TouchableOpacity
+            onPress={handlePhotoOptions}
+            activeOpacity={0.8}
+            className="relative mb-2"
+          >
+            <View className="w-20 h-20 rounded-full bg-slate-100 items-center justify-center overflow-hidden border-2 border-gray-200 shadow-sm">
+              {hasCustomPhoto ? (
+                <Image
+                  source={{ uri: avatar }}
+                  className="w-full h-full rounded-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Icon name="UserIcon" variant="solid" size={42} color="#1e293b" />
+              )}
+            </View>
+
+            {/* Badge Kamera Kecil di Pojok Kanan Bawah Avatar */}
+            <View className="w-7 h-7 rounded-full bg-gray-900 items-center justify-center absolute bottom-0 right-0 border-2 border-white shadow-xs">
+              <Icon name="CameraIcon" variant="solid" size={14} color="#ffffff" />
+            </View>
+          </TouchableOpacity>
+
+          {/* Tombol Teks Ganti Foto */}
+          <TouchableOpacity onPress={handlePhotoOptions} className="mb-1">
+            <Text className="text-xs font-bold text-sky-600">Ganti Foto Profil</Text>
+          </TouchableOpacity>
+
           <Text className="font-mono text-gray-900 text-sm font-semibold text-center">
             {nama || "Pahlawan Edungeon"}
           </Text>

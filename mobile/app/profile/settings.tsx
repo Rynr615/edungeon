@@ -17,7 +17,7 @@ import { useAudio } from "../../context/AudioContext";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { userProfile, fetchProfile } = useAuth();
+  const { fetchProfile } = useAuth();
   const { audioEnabled, volume: ctxVolume, toggleAudio, setVolumeLevel, playSfx } = useAudio();
 
   const [audioAktif, setAudioAktif] = useState(audioEnabled);
@@ -25,11 +25,11 @@ export default function SettingsScreen() {
   const [saving, setSaving] = useState(false);
 
   const volumePresets = [
-    { label: "Mute (0%)", val: 0.0 },
+    { label: "Mute", val: 0.0 },
     { label: "25%", val: 0.25 },
     { label: "50%", val: 0.5 },
     { label: "75%", val: 0.75 },
-    { label: "Max (100%)", val: 1.0 },
+    { label: "100%", val: 1.0 },
   ];
 
   const handleToggle = (val: boolean) => {
@@ -55,66 +55,66 @@ export default function SettingsScreen() {
       await setVolumeLevel(volume);
       await fetchProfile();
       playSfx("correct");
-      Alert.alert("Pengaturan Disimpan", "Preferensi audio kamu telah berhasil disimpan.");
+      Alert.alert("Berhasil", "Pengaturan audio berhasil disimpan.");
     } catch (err: any) {
       playSfx("wrong");
-      Alert.alert("Gagal Menyimpan", err.message || "Terjadi kesalahan pada server");
+      Alert.alert("Gagal", err.message || "Terjadi kesalahan pada server");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-white">
       {/* Top App Bar */}
-      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between border-b border-surface-light bg-surface/80">
+      <View className="pt-12 pb-4 px-6 flex-row items-center justify-between border-b border-gray-100 bg-white">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full bg-surface-light/60 items-center justify-center border border-slate-700"
+          className="w-10 h-10 rounded-full bg-slate-50 items-center justify-center border border-gray-200"
         >
-          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#f8fafc" />
+          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-text font-black text-lg">Pengaturan Aplikasi</Text>
+        <Text className="text-gray-900 font-bold text-lg">Settings</Text>
         <View className="w-10" />
       </View>
 
-      <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 px-6 pt-6" showsVerticalScrollIndicator={false}>
         {/* Audio Section */}
-        <View className="bg-surface border border-surface-light rounded-3xl p-5 mb-5 shadow-sm">
+        <View className="bg-white border border-gray-200 rounded-2xl p-5 mb-5 shadow-xs">
           <View className="flex-row items-center mb-4">
-            <View className="w-9 h-9 rounded-xl bg-blue-500/20 items-center justify-center mr-3">
+            <View className="w-10 h-10 rounded-full bg-indigo-50 items-center justify-center mr-3">
               <Icon
                 name={audioAktif ? "SpeakerWaveIcon" : "SpeakerXMarkIcon"}
                 variant="solid"
                 size={20}
-                color="#3b82f6"
+                color="#6366f1"
               />
             </View>
             <View>
-              <Text className="text-text font-bold text-base">Suara & Audio Game</Text>
-              <Text className="text-subtext text-xs">Musik latar BGM dan efek suara pertarungan</Text>
+              <Text className="text-gray-900 font-bold text-base">Suara & Audio Game</Text>
+              <Text className="text-gray-400 text-xs">Musik latar BGM dan efek suara pertarungan</Text>
             </View>
           </View>
 
           {/* Toggle Switch */}
-          <View className="flex-row items-center justify-between py-3 border-t border-surface-light">
+          <View className="flex-row items-center justify-between py-3 border-t border-gray-100">
             <View>
-              <Text className="text-text font-semibold text-sm">Aktifkan Suara</Text>
-              <Text className="text-subtext text-xs">Suara dungeon, tebasan, dan combo</Text>
+              <Text className="text-gray-900 font-semibold text-sm">Aktifkan Suara</Text>
+              <Text className="text-gray-400 text-xs">Suara dungeon, tebasan, dan combo</Text>
             </View>
             <Switch
               value={audioAktif}
               onValueChange={handleToggle}
-              trackColor={{ false: "#334155", true: "#2563eb" }}
-              thumbColor={audioAktif ? "#ffffff" : "#94a3b8"}
+              trackColor={{ false: "#e5e7eb", true: "#6366f1" }}
+              thumbColor={audioAktif ? "#ffffff" : "#9ca3af"}
             />
           </View>
 
           {/* Volume Presets */}
-          <View className="pt-4 border-t border-surface-light">
+          <View className="pt-4 border-t border-gray-100">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-text font-semibold text-sm">Tingkat Volume</Text>
-              <Text className="text-blue-400 font-extrabold text-xs">
+              <Text className="text-gray-900 font-semibold text-sm">Tingkat Volume</Text>
+              <Text className="text-indigo-600 font-bold text-xs">
                 {Math.round(volume * 100)}%
               </Text>
             </View>
@@ -129,15 +129,15 @@ export default function SettingsScreen() {
                     onPress={() => handleSelectVolume(preset.val)}
                     className={`px-3 py-2 rounded-xl border ${
                       !audioAktif
-                        ? "opacity-30 bg-slate-800 border-slate-700"
+                        ? "opacity-30 bg-gray-50 border-gray-200"
                         : isSelected
-                        ? "bg-primary/20 border-primary"
-                        : "bg-surface-light/40 border-slate-700"
+                        ? "bg-indigo-50 border-indigo-500"
+                        : "bg-white border-gray-200"
                     }`}
                   >
                     <Text
-                      className={`font-bold text-xs ${
-                        isSelected && audioAktif ? "text-blue-400" : "text-slate-400"
+                      className={`font-mono font-bold text-xs ${
+                        isSelected && audioAktif ? "text-indigo-600" : "text-gray-600"
                       }`}
                     >
                       {preset.label}
@@ -153,41 +153,41 @@ export default function SettingsScreen() {
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
-          className="bg-primary p-4 rounded-2xl items-center justify-center mb-6 shadow-md shadow-blue-500/20 active:opacity-90"
+          className="bg-gray-900 p-4 rounded-xl items-center justify-center mb-6 shadow-xs active:opacity-90"
         >
           {saving ? (
             <ActivityIndicator color="#ffffff" />
           ) : (
             <Text className="text-white font-bold text-sm tracking-wide">
-              Simpan Pengaturan Audio
+              Simpan Pengaturan
             </Text>
           )}
         </TouchableOpacity>
 
         {/* Application Information */}
-        <View className="bg-surface border border-surface-light rounded-3xl p-5 mb-12 shadow-sm">
+        <View className="bg-white border border-gray-200 rounded-2xl p-5 mb-12 shadow-xs">
           <View className="flex-row items-center mb-3">
-            <View className="w-9 h-9 rounded-xl bg-purple-500/20 items-center justify-center mr-3">
-              <Icon name="InformationCircleIcon" variant="solid" size={20} color="#a855f7" />
+            <View className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center mr-3">
+              <Icon name="InformationCircleIcon" variant="solid" size={20} color="#64748b" />
             </View>
             <View>
-              <Text className="text-text font-bold text-base">Tentang Edungeon</Text>
-              <Text className="text-subtext text-xs">Gamified Roguelike Learning App</Text>
+              <Text className="text-gray-900 font-bold text-base">Tentang Edungeon</Text>
+              <Text className="text-gray-400 text-xs">Gamified Roguelike Learning App</Text>
             </View>
           </View>
 
-          <View className="space-y-2 pt-2 border-t border-surface-light">
+          <View className="space-y-2 pt-2 border-t border-gray-100">
             <View className="flex-row justify-between py-1.5">
-              <Text className="text-subtext text-xs">Versi Aplikasi</Text>
-              <Text className="text-slate-300 font-semibold text-xs">v1.0.0 (SDK 57)</Text>
+              <Text className="text-gray-500 text-xs">Versi Aplikasi</Text>
+              <Text className="font-mono text-gray-900 font-semibold text-xs">v1.0.0 (SDK 57)</Text>
             </View>
             <View className="flex-row justify-between py-1.5">
-              <Text className="text-subtext text-xs">Basis Database</Text>
-              <Text className="text-slate-300 font-semibold text-xs">Firebase Cloud Firestore</Text>
+              <Text className="text-gray-500 text-xs">Basis Database</Text>
+              <Text className="font-mono text-gray-900 font-semibold text-xs">Firebase Cloud Firestore</Text>
             </View>
             <View className="flex-row justify-between py-1.5">
-              <Text className="text-subtext text-xs">Arsitektur Game</Text>
-              <Text className="text-slate-300 font-semibold text-xs">Deterministic Turn-based</Text>
+              <Text className="text-gray-500 text-xs">Arsitektur Game</Text>
+              <Text className="font-mono text-gray-900 font-semibold text-xs">Deterministic Roguelike</Text>
             </View>
           </View>
         </View>

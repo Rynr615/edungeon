@@ -3,13 +3,12 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  TextInput,
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
@@ -20,22 +19,22 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const { userProfile, fetchProfile } = useAuth();
 
-  const [nama, setNama] = useState(userProfile?.nama || "");
-  const [namaPanggilan, setNamaPanggilan] = useState(userProfile?.nama_panggilan || "");
-  const [kelas, setKelas] = useState(userProfile?.kelas || "");
-  const [noHp, setNoHp] = useState(userProfile?.no_hp || "");
-  const [avatar, setAvatar] = useState(userProfile?.avatar || "knight");
+  const [nama, setNama] = useState(userProfile?.nama || "Ryan Yanuar Pradana");
+  const [namaPanggilan, setNamaPanggilan] = useState(
+    userProfile?.nama_panggilan || "Ryan"
+  );
+  const [kelas, setKelas] = useState(userProfile?.kelas || "XI IPA 1");
+  const [noHp, setNoHp] = useState(userProfile?.no_hp || "+628123456788");
+  const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const avatarOptions = [
-    { id: "knight", label: "Knight", icon: "ShieldCheckIcon" as const, color: "#3b82f6" },
-    { id: "mage", label: "Mage", icon: "SparklesIcon" as const, color: "#06b6d4" },
-    { id: "archer", label: "Archer", icon: "BoltIcon" as const, color: "#10b981" },
-  ];
+  const level = userProfile?.level || 15;
+  const username = userProfile?.username || "JohnDoe";
+  const email = userProfile?.email || "email@gmail.com";
 
   const handleSave = async () => {
     if (!nama.trim() || nama.trim().length < 2) {
-      Alert.alert("Validasi Gagal", "Nama lengkap minimal terdiri dari 2 karakter.");
+      Alert.alert("Gagal", "Nama minimal terdiri dari 2 karakter.");
       return;
     }
 
@@ -46,211 +45,193 @@ export default function EditProfileScreen() {
         nama_panggilan: namaPanggilan.trim(),
         kelas: kelas.trim(),
         no_hp: noHp.trim(),
-        avatar,
       });
-
       await fetchProfile();
-      Alert.alert("Berhasil", "Informasi profil berhasil diperbarui!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      setIsEditing(false);
+      Alert.alert("Berhasil", "Informasi pribadi berhasil diperbarui!");
     } catch (err: any) {
-      Alert.alert("Gagal Menyimpan", err.message || "Terjadi kesalahan pada server");
+      Alert.alert("Gagal", err.message || "Gagal menyimpan perubahan");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-background"
-    >
-      {/* Top App Bar */}
-      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between border-b border-surface-light bg-surface/80">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-10 h-10 rounded-full bg-surface-light/60 items-center justify-center border border-slate-700"
-        >
-          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#f8fafc" />
-        </TouchableOpacity>
-        <Text className="text-text font-black text-lg">Informasi Pribadi</Text>
-        <View className="w-10" />
-      </View>
+    <View className="flex-1 bg-white">
+      <ScrollView className="flex-1 px-6 pt-12" showsVerticalScrollIndicator={false}>
+        {/* Top Header: Title & Back */}
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="font-bold text-2xl text-gray-900 tracking-tight">
+            Profile
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-1 rounded-full"
+            accessibilityLabel="Kembali"
+          >
+            <Icon name="ChevronLeftIcon" variant="outline" size={22} color="#111827" />
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
-        {/* Avatar Selection Card */}
-        <View className="bg-surface border border-surface-light rounded-3xl p-5 mb-6 items-center shadow-md">
-          <View className="w-24 h-24 rounded-3xl bg-blue-500/20 border-2 border-primary items-center justify-center mb-3">
-            <Icon
-              name={
-                avatar === "mage"
-                  ? "SparklesIcon"
-                  : avatar === "archer"
-                  ? "BoltIcon"
-                  : "ShieldCheckIcon"
-              }
-              variant="solid"
-              size={48}
-              color={
-                avatar === "mage" ? "#06b6d4" : avatar === "archer" ? "#10b981" : "#3b82f6"
-              }
-            />
+        {/* Centered Identity: Avatar, Name, Level 15 */}
+        <View className="items-center my-3">
+          <View className="w-20 h-20 rounded-full bg-slate-100 items-center justify-center mb-2 shadow-xs">
+            <Icon name="UserIcon" variant="solid" size={42} color="#1e293b" />
           </View>
-
-          <View className="bg-amber-500/20 px-3 py-0.5 rounded-full border border-amber-500/40 mb-3">
-            <Text className="text-amber-400 font-extrabold text-xs">
-              LEVEL {userProfile?.level || 1}
+          <Text className="font-mono text-gray-900 text-sm font-semibold text-center">
+            {nama}
+          </Text>
+          <View className="flex-row items-center justify-center mt-1">
+            <Icon name="StarIcon" variant="outline" size={15} color="#eab308" />
+            <Text className="font-mono text-gray-900 text-xs ml-1.5 font-semibold">
+              Level {level}
             </Text>
-          </View>
-
-          <Text className="text-subtext font-semibold text-xs mb-3">Pilih Karakter Avatar</Text>
-
-          <View className="flex-row justify-center space-x-3">
-            {avatarOptions.map((opt) => {
-              const isSelected = avatar === opt.id;
-              return (
-                <TouchableOpacity
-                  key={opt.id}
-                  onPress={() => setAvatar(opt.id)}
-                  className={`px-3.5 py-2 rounded-xl flex-row items-center border ${
-                    isSelected
-                      ? "bg-primary/20 border-primary"
-                      : "bg-surface-light/40 border-slate-700"
-                  }`}
-                >
-                  <Icon name={opt.icon} variant="solid" size={16} color={opt.color} />
-                  <Text
-                    className={`font-bold text-xs ml-1.5 ${
-                      isSelected ? "text-blue-400" : "text-slate-400"
-                    }`}
-                  >
-                    {opt.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
           </View>
         </View>
 
-        {/* Input Form Fields */}
-        <View className="space-y-4 mb-8">
-          {/* Read-Only: Username */}
-          <View>
-            <Text className="text-subtext font-bold text-xs mb-1.5 uppercase tracking-wider">
-              Username (ID Unik)
-            </Text>
-            <View className="bg-surface-light/40 border border-slate-700 rounded-2xl px-4 py-3 flex-row items-center justify-between opacity-70">
-              <Text className="text-slate-300 font-semibold text-sm">
-                @{userProfile?.username || "pahlawan"}
-              </Text>
-              <Icon name="LockClosedIcon" variant="solid" size={16} color="#64748b" />
-            </View>
-          </View>
+        {/* Card: Username & Email */}
+        <View className="bg-white rounded-2xl p-4 my-4 shadow-sm border border-gray-100">
+          <Text className="text-gray-400 font-semibold text-xs mb-1">Username</Text>
+          <Text className="font-mono text-gray-900 text-sm pb-2.5 border-b border-gray-200">
+            {username}
+          </Text>
 
-          {/* Read-Only: Email */}
-          <View className="mt-3">
-            <Text className="text-subtext font-bold text-xs mb-1.5 uppercase tracking-wider">
-              Alamat Email Terdaftar
-            </Text>
-            <View className="bg-surface-light/40 border border-slate-700 rounded-2xl px-4 py-3 flex-row items-center justify-between opacity-70">
-              <Text className="text-slate-300 font-semibold text-sm">
-                {userProfile?.email || "siswa@edungeon.com"}
-              </Text>
-              <Icon name="LockClosedIcon" variant="solid" size={16} color="#64748b" />
-            </View>
+          <Text className="text-gray-400 font-semibold text-xs mt-3 mb-1">Email</Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="font-mono text-gray-900 text-sm">{email}</Text>
+            <Icon name="ChevronRightIcon" variant="outline" size={16} color="#9ca3af" />
           </View>
+        </View>
 
-          {/* Editable: Nama Lengkap */}
-          <View className="mt-3">
-            <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-text font-bold text-xs uppercase tracking-wider">
-                Nama Lengkap
+        {/* Section Title: Informasi Pribadi & Edit Button */}
+        <View className="flex-row items-center justify-between mt-2 mb-4">
+          <Text className="font-bold text-gray-900 text-lg">Informasi Pribadi</Text>
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            className="bg-slate-100 px-3 py-1 rounded-full border border-gray-300"
+          >
+            <Text className="text-xs font-bold text-gray-700">Ubah Data</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* List of 4 Fields with Bottom Borders */}
+        <View className="space-y-4 mb-16">
+          {/* 1. Nama */}
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            activeOpacity={0.7}
+            className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
+          >
+            <Text className="text-gray-900 font-semibold text-sm">Nama</Text>
+            <View className="flex-row items-center">
+              <Icon
+                name="ExclamationCircleIcon"
+                variant="solid"
+                size={18}
+                color="#eab308"
+              />
+              <Text className="font-mono text-gray-400 text-sm ml-1.5" numberOfLines={1}>
+                {nama}
               </Text>
-              {!nama.trim() && (
-                <View className="flex-row items-center">
-                  <Icon name="ExclamationTriangleIcon" variant="solid" size={12} color="#f59e0b" />
-                  <Text className="text-amber-400 font-semibold text-[11px] ml-1">Wajib diisi</Text>
-                </View>
-              )}
             </View>
+          </TouchableOpacity>
+
+          {/* 2. Nama Panggilan */}
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            activeOpacity={0.7}
+            className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
+          >
+            <Text className="text-gray-900 font-semibold text-sm">Nama Panggilan</Text>
+            <View className="flex-row items-center">
+              <Text className="font-mono text-gray-400 text-sm mr-2">{namaPanggilan}</Text>
+              <Icon name="ChevronRightIcon" variant="outline" size={16} color="#374151" />
+            </View>
+          </TouchableOpacity>
+
+          {/* 3. Kelas */}
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            activeOpacity={0.7}
+            className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
+          >
+            <Text className="text-gray-900 font-semibold text-sm">Kelas</Text>
+            <Text className="font-mono text-gray-400 text-sm">{kelas}</Text>
+          </TouchableOpacity>
+
+          {/* 4. No. HP */}
+          <TouchableOpacity
+            onPress={() => setIsEditing(true)}
+            activeOpacity={0.7}
+            className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
+          >
+            <Text className="text-gray-900 font-semibold text-sm">No. HP</Text>
+            <Text className="font-mono text-gray-400 text-sm">{noHp}</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* MODAL DIALOG UBAH INFORMASI PRIBADI */}
+      <Modal visible={isEditing} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-6 shadow-2xl">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="font-bold text-lg text-gray-900">
+                Ubah Informasi Pribadi
+              </Text>
+              <TouchableOpacity onPress={() => setIsEditing(false)}>
+                <Icon name="XMarkIcon" variant="outline" size={22} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Input Nama */}
+            <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Lengkap</Text>
             <TextInput
               value={nama}
               onChangeText={setNama}
-              placeholder="Masukkan nama lengkap"
-              placeholderTextColor="#64748b"
-              className="bg-surface border border-surface-light rounded-2xl px-4 py-3 text-text font-semibold text-sm focus:border-primary"
+              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
             />
-          </View>
 
-          {/* Editable: Nama Panggilan */}
-          <View className="mt-3">
-            <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-text font-bold text-xs uppercase tracking-wider">
-                Nama Panggilan
-              </Text>
-              {!namaPanggilan.trim() && (
-                <Text className="text-amber-400 font-semibold text-[11px]">Belum diatur</Text>
-              )}
-            </View>
+            {/* Input Nama Panggilan */}
+            <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Panggilan</Text>
             <TextInput
               value={namaPanggilan}
               onChangeText={setNamaPanggilan}
-              placeholder="Contoh: John"
-              placeholderTextColor="#64748b"
-              className="bg-surface border border-surface-light rounded-2xl px-4 py-3 text-text font-semibold text-sm focus:border-primary"
+              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
             />
-          </View>
 
-          {/* Editable: Kelas */}
-          <View className="mt-3">
-            <Text className="text-text font-bold text-xs mb-1.5 uppercase tracking-wider">
-              Kelas / Rombel
-            </Text>
+            {/* Input Kelas */}
+            <Text className="text-gray-700 text-xs font-semibold mb-1">Kelas</Text>
             <TextInput
               value={kelas}
               onChangeText={setKelas}
-              placeholder="Contoh: X-PPLG 1"
-              placeholderTextColor="#64748b"
-              className="bg-surface border border-surface-light rounded-2xl px-4 py-3 text-text font-semibold text-sm focus:border-primary"
+              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
             />
-          </View>
 
-          {/* Editable: No HP */}
-          <View className="mt-3">
-            <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-text font-bold text-xs uppercase tracking-wider">
-                Nomor WhatsApp / HP
-              </Text>
-              {!noHp.trim() && (
-                <Text className="text-amber-400 font-semibold text-[11px]">Belum diatur</Text>
-              )}
-            </View>
+            {/* Input No HP */}
+            <Text className="text-gray-700 text-xs font-semibold mb-1">No. HP / WhatsApp</Text>
             <TextInput
               value={noHp}
               onChangeText={setNoHp}
-              placeholder="Contoh: 081234567890"
               keyboardType="phone-pad"
-              placeholderTextColor="#64748b"
-              className="bg-surface border border-surface-light rounded-2xl px-4 py-3 text-text font-semibold text-sm focus:border-primary"
+              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-6 text-gray-900"
             />
+
+            {/* Save Button */}
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={saving}
+              className="bg-gray-900 py-3.5 rounded-xl items-center mb-4"
+            >
+              {saving ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text className="text-white font-bold text-base">Simpan Perubahan</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Action Button: Simpan Perubahan */}
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={saving}
-          className="bg-primary p-4 rounded-2xl items-center justify-center mb-12 shadow-lg shadow-blue-500/30 active:opacity-90"
-        >
-          {saving ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text className="text-white font-black text-base tracking-wide">
-              Simpan Perubahan
-            </Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </Modal>
+    </View>
   );
 }

@@ -132,17 +132,9 @@ export default function EditProfileScreen() {
             className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
           >
             <Text className="text-gray-900 font-semibold text-sm">Nama</Text>
-            <View className="flex-row items-center">
-              <Icon
-                name="ExclamationCircleIcon"
-                variant="solid"
-                size={18}
-                color="#eab308"
-              />
-              <Text className="font-mono text-gray-400 text-sm ml-1.5" numberOfLines={1}>
-                {nama || "Belum diisi"}
-              </Text>
-            </View>
+            <Text className="font-mono text-gray-400 text-sm" numberOfLines={1}>
+              {nama || "Belum diisi"}
+            </Text>
           </TouchableOpacity>
 
           {/* 2. Nama Panggilan */}

@@ -34,12 +34,7 @@ export const ProfileMenuActions: React.FC<ProfileMenuActionsProps> = ({
           </View>
         </View>
 
-        <View className="flex-row items-center">
-          <Icon name="ExclamationTriangleIcon" variant="solid" size={18} color="#ef4444" />
-          <View className="ml-2">
-            <Icon name="ChevronRightIcon" variant="outline" size={18} color="#374151" />
-          </View>
-        </View>
+        <Icon name="ChevronRightIcon" variant="outline" size={18} color="#9ca3af" />
       </TouchableOpacity>
 
       {/* 2. Settings */}

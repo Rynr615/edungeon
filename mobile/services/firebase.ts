@@ -1,12 +1,10 @@
 // mobile/services/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { initializeAuth } from "firebase/auth"; // Pakai initializeAuth
-// @ts-expect-error getReactNativePersistence tersedia saat runtime React Native pada Firebase SDK
+import { initializeAuth, getAuth, Auth } from "firebase/auth"; // Tambahkan Auth
+// @ts-expect-error getReactNativePersistence tersedia saat runtime React Native
 import { getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-console.log("[FIREBASE CONFIG] API Key Loaded:", !!process.env.EXPO_PUBLIC_FIREBASE_API_KEY);
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -19,12 +17,15 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-console.log("[FIREBASE RUNTIME OPTIONS]", app.options);
-
-// initializeAuth menerima 2 argumen untuk menetapkan persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// Berikan tipe eksplisit : Auth
+let auth: Auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch {
+  auth = getAuth(app);
+}
 
 const db = getFirestore(app);
 

@@ -1,11 +1,17 @@
 // mobile/app/(tabs)/challenge.tsx
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { Header } from "../../components/ui/Header";
 import { Card } from "../../components/ui/Card";
 import { Icon } from "../../components/ui/Icon";
 
 export default function ChallengeScreen() {
+  const router = useRouter();
+
+  const handleStartStage = (stageId: string) => {
+    router.push(`/game/${stageId}`);
+  };
   return (
     <View className="flex-1 bg-background">
       <Header />

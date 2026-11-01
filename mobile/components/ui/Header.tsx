@@ -1,24 +1,32 @@
 // mobile/components/ui/Header.tsx
 import React from "react";
-import { View, Text } from "react-native";
-import { useAuth } from "../../context/AuthContext";
+import { View, Text, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 
-export const Header: React.FC = () => {
-  const { userProfile } = useAuth();
-  const exp = userProfile?.total_exp || 0;
-  const level = Math.floor(exp / 100) + 1;
+interface HeaderProps {
+  title?: string; // Tanda ? membuat prop title bersifat opsional
+  showBackBtn?: boolean;
+  rightElement?: React.ReactNode;
+}
+
+export function Header({ title = "Edungeon", showBackBtn = false, rightElement }: HeaderProps) {
+  const router = useRouter();
 
   return (
-    <View className="flex-row justify-between items-center px-6 pt-12 pb-4 bg-surface border-b border-surface-light">
-      <View>
-        <Text className="text-text font-bold text-lg">
-          Hello, {userProfile?.nama || "Pahlawan"}
-        </Text>
-        <Text className="text-subtext text-xs">{userProfile?.kelas || "Kelas X"}</Text>
+    <View className="flex-row items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800">
+      <View className="flex-row items-center space-x-3">
+        {showBackBtn && (
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-1 px-2 rounded-lg bg-slate-800 border border-slate-700 mr-2"
+          >
+            <Text className="text-slate-400 font-bold text-base">←</Text>
+          </TouchableOpacity>
+        )}
+        <Text className="text-white text-lg font-bold">{title}</Text>
       </View>
-      <View className="bg-background px-3 py-1.5 rounded-full border border-surface-light flex-row items-center">
-        <Text className="text-exp font-bold text-xs">Lvl {level}</Text>
-      </View>
+
+      {rightElement && <View>{rightElement}</View>}
     </View>
   );
-};
+}

@@ -5,6 +5,7 @@ import { View } from "react-native";
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  variant?: "default" | "dark" | "glass";
 }
 
 export const Card: React.FC<CardProps> = ({ children, className = "" }) => {

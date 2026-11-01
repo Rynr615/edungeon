@@ -11,10 +11,6 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
 
-  fetch("https://identitytoolkit.googleapis.com")
-  .then((res) => console.log("[TEST KONEKSI GOOGLE] Berhasil terhubung, Status:", res.status))
-    .catch((err) => console.error("[TEST KONEKSI GOOGLE] Gagal terhubung ke Google:", err.message));
-
   useEffect(() => {
     if (loading) return;
 

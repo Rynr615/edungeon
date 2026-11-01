@@ -40,16 +40,16 @@ export default function OnboardingScreen() {
         <Text className="text-subtext mb-1">Nama Lengkap</Text>
         <TextInput
           className="bg-background text-text p-3 rounded-lg border border-surface-light mb-4"
-          placeholder="Ryan Yanuar"
+          placeholder="Nama Lengkap"
           placeholderTextColor="#94a3b8"
           value={nama}
           onChangeText={setNama}
         />
 
-        <Text className="text-subtext mb-1">Username (Nama Pahlawan)</Text>
+        <Text className="text-subtext mb-1">Username</Text>
         <TextInput
           className="bg-background text-text p-3 rounded-lg border border-surface-light mb-4"
-          placeholder="ryan_knight"
+          placeholder="Username"
           placeholderTextColor="#94a3b8"
           value={username}
           onChangeText={setUsername}

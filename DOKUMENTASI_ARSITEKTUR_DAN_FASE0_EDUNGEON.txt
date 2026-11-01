@@ -1,0 +1,526 @@
+================================================================================
+DOKUMENTASI LENGKAP ARSITEKTUR, MEKANIK, DAN RENCANA PENGEMBANGAN EDUNGEON
+(FASE 0 - PEMAHAMAN DOKUMEN, ANALISIS FITUR, STRUKTUR FOLDER & 17 KLARIFIKASI)
+================================================================================
+
+Dibuat untuk: Mahasiswa Pendidikan Ilmu Komputer (Proyek Mobile Programming)
+Peran: Senior Mobile & Full-Stack Engineer / Mentor Pemrograman
+Target Platform: Mobile (React Native + Expo SDK 57/58, TypeScript, NativeWind, Heroicons)
+Backend & Database: Node.js + Express (TypeScript), Firebase Auth & Cloud Firestore
+Monorepo: mobile/ (Front-end) & server/ (Back-end)
+
+--------------------------------------------------------------------------------
+BAGIAN 1: RINGKASAN & IDENTITAS APLIKASI "EDUNGEON"
+--------------------------------------------------------------------------------
+Edungeon adalah aplikasi mobile pembelajaran gamifikasi interaktif yang menggabungkan
+pendidikan kurikulum SMA Kelas X dengan mekanisme game "Roguelike Turn-Based RPG".
+Aplikasi ini dirancang khusus untuk memecahkan kebosanan siswa dan mendongkrak motivasi
+belajar pada mata pelajaran yang dinilai sulit (fokus utama: Matematika dan Informatika).
+
+Dalam Edungeon:
+- Siswa bermain sebagai seorang "Hero" petualang dungeon.
+- Setiap aksi menyerang monster/musuh dieksekusi dengan cara "menjawab soal pilihan ganda (A-D)".
+- Jawaban benar = Menyerang musuh (Damage).
+- Jawaban salah = Memicu serangan balik dari monster yang mengurangi HP Hero.
+- Jika HP habis = Permadeath (Hero tumbang dan run kuis berakhir).
+
+Dua Dokumen Acuan:
+1. Dokumen 1 (Proposal Edungeon): Sumber acuan alur pengguna, DFD Level 0-2, ERD database,
+   wireframe layar (Home, Challenge, Profile, Login/Register), serta fase pembelajaran modul.
+2. Dokumen 2 (Sistem Kartu Power-Up Edungeon): Sumber acuan kebenaran tertinggi untuk stat mekanik game,
+   rumus damage/HP, mekanik skill 3 Class, penawaran 12 kartu buff, katalog 15 Badge, serta simulasi matematis.
+ATURAN PRIORITAS: Dokumen 2 mengalahkan Dokumen 1 dalam seluruh aspek angka mekanik game.
+
+--------------------------------------------------------------------------------
+BAGIAN 2: JABARAN FITUR UTAMA SECARA MENDALAM (DEEP DIVE FEATURES)
+--------------------------------------------------------------------------------
+
+1. FITUR AUTENTIKASI DAN ONBOARDING
+   - Registrasi & Login ganda: Mendukung Email & Password serta opsi Google OAuth via Firebase Authentication.
+   - Sesi Persisten: Token disimpan aman di perangkat via AsyncStorage.
+   - Onboarding Biodata: Siswa baru wajib melengkapi profil awal: Nama Lengkap, Username unik, dan Kelas (misal: X-MIPA 1).
+   - Profiling Awal: Sistem menginisialisasi statistik dasar di Firestore (total_exp = 0, monster_dikalahkan = 0, boss_dikalahkan = 0, akurasi = 0%).
+
+2. FITUR SISTEM MODUL TERKUNCI (FASE PEMBELAJARAN) - HALAMAN HOME
+   - Dependency Prasyarat (Lock & Key): Modul materi tersusun linear atau berhierarki. Modul berikutnya (misal Modul 2) terkunci bergembok sampai Modul 1 ditandai "Tamat" (modul_tamat = true).
+   - Mata Pelajaran Prasyarat: Modul Matematika wajib diselesaikan sebelum membuka materi Informatika.
+   - Layar Pembelajaran Dual-Mode:
+     a. Teks & Catatan Intisari Rumus/Konsep.
+     b. Video Edukasi Interaktif terintegrasi dengan YouTube Player.
+   - Konfirmasi Penyelesaian: Tombol "Tandai Selesai" untuk membuka gerbang Challenge modul tersebut.
+
+3. FITUR SISTEM ROGUELIKE BATTLE (FASE KUIS) - HALAMAN CHALLENGE
+   - Struktur 10 Stage per Modul:
+     * Stage 1 s/d 4: Monster Biasa (1 soal per stage, HP musuh = 10).
+     * Stage 5: Mid-Boss Encounter (2 soal beruntun, HP Mid-Boss = 20).
+     * Stage 6 s/d 9: Monster Elit Biasa (1 soal per stage, HP musuh = 10).
+     * Stage 10: Last Boss Encounter (3 soal beruntun, HP Last Boss = 30).
+     * Total soal minimal per run: 13 soal (8 + 2 + 3).
+   - Stat Dasar Karakter:
+     * Base Attack: 10 damage per jawaban benar.
+     * Base HP: 3 (Max HP = 3).
+     * Serangan Balik Musuh: Jawaban salah memicu 1 serangan balik bernilai 1 damage ke HP Hero.
+   - Otoritas Waktu (Timer):
+     * Waktu standar: 20 detik per soal (menjadi 30 detik jika memiliki kartu K09).
+     * Server Authority: Timer dihitung di Express saat soal diminta hingga jawaban diterima, client hanya menampilkan countdown visual.
+
+4. FITUR SISTEM CLASS HERO (3 PILIHAN ROLE)
+   - Knight (Tanker):
+     * Memiliki Skill "Shield" (Perisai).
+     * Kapasitas awal: 1 charge. Setiap 1 charge menyerap 1 serangan balik musuh secara mutlak (HP tidak berkurang).
+     * Pemulihan: 1 charge pulih otomatis di setiap awal Stage baru.
+   - Mage (Spellcaster / Taktikal):
+     * Memiliki Skill "Magnifying Glass" (Kaca Pembesar).
+     * Kapasitas awal: 3 charge. Dipakai secara manual sebelum menjawab untuk mengeliminasi 2 opsi salah dari pilihan A-D.
+     * Pemulihan: Restock otomatis +1 charge setiap menyelesaikan 2 Stage.
+     * Karakteristik: Pertahanan nol (tidak punya Shield/Dodge alami).
+   - Archer (Agile / Penghindar):
+     * Memiliki Skill Pasif "Dodge" (Menghindar).
+     * Peluang mengelak otomatis saat jawaban salah memicu serangan balik.
+     * Kurva Dodge per Stage: Stage 1-2 (30%), Stage 3-4 (40%), Stage 5-6 (50%), Stage 7-8 (60%), Stage 9-10 (70%).
+     * Hard Cap peluang Dodge: Maksimal 70%.
+
+5. FITUR DRAFTING & SISTEM 12 KARTU POWER-UP
+   - Momen Drafting: Muncul tepat setelah mengalahkan Mid-Boss Stage 5.
+   - Aturan Draft: Ditawarkan 3 kartu acak unik (minimal 1 kartu sesuai Class Hero aktif, sisanya dari kartu Common). Pemain memilih tepat 1 kartu.
+   - Masa Berlaku: Aktif selama Stage 6 s/d 10 modul tersebut, lalu di-reset kembali ke Base Stats saat memasuki modul baru.
+   - Rincian 12 Kartu:
+     * [Knight] K01 Vitalitas Tempur: +1 Max HP dan +1 HP saat dipilih (Max HP jadi 4).
+     * [Mage] K02 Magnifying Glass Cadangan: +1 charge Kaca Pembesar, kapasitas naik jadi 4.
+     * [Archer] K03 Langkah Lincah: +10% peluang Dodge (tetap patuh hard cap 70%).
+     * [Common] K04 Ramuan Pemulihan: Pulihkan 1 HP seketika. Jika HP sudah penuh, beri 1 Buffer penahan serangan balik.
+     * [Knight] K05 Charge Perisai Tambahan: Kapasitas aktif Shield naik jadi 2 (dapat menahan 2 hit).
+     * [Mage] K06 Fokus Mantra: Jawaban benar <10 detik memberi 12 damage (bukan 10).
+     * [Archer] K07 Critical Strike: 25% peluang serangan benar menghasilkan 20 damage (Critical Hit).
+     * [Common] K08 Kesempatan Belajar: Satu kali jawab ulang soal tanpa terkena serangan balik pada percobaan pertama.
+     * [Common] K09 Waktu Tambahan: Batas waktu bertambah +10 detik (menjadi 30 detik per soal).
+     * [Knight] K10 Serangan Balasan: 30% peluang memberi 5 damage balasan ke musuh saat jawaban salah.
+     * [Mage] K11 Ingatan Arcane: Sekali per modul menandai 1 opsi salah secara visual.
+     * [Archer] K12 Bidikan Terarah: Sekali per modul menghapus 1 opsi jawaban salah.
+
+6. FITUR 15 BADGE & PENCAPAIAN (ACHIEVEMENTS)
+   - Badge Klasik (10):
+     1. The Journey Begins: Selesaikan Stage 1-1 pertama kali.
+     2. Monster Slayer: Kalahkan kumulatif 10 monster biasa.
+     3. Mid-Boss Crusher: Kalahkan Mid-Boss Stage 5 pertama kali.
+     4. Math Grandmaster: Kalahkan Last Boss Stage 10 dan tuntaskan Stage 1-10 dalam 1 run.
+     5. Sharpshooter: Jawab 10 soal berturut-turut benar dalam 1 run.
+     6. Deck Collector: Kumpulkan 5 ID kartu berbeda lintas run/modul.
+     7. Lightning Mind: Jawab benar soal Boss dengan waktu <5 detik.
+     8. Untouchable: Kalahkan Mid-Boss atau Last Boss tanpa pernah salah jawab selama encounter tersebut.
+     9. True Scholar: Buka dan selesaikan seluruh Modul Materi di Home.
+     10. Living on the Edge: Kalahkan Boss dengan sisa HP tepat 1.
+   - Badge Usulan Baru (5):
+     11. Benteng Baja (Knight): Shield menyerap 3 kali serangan balik dalam 1 run.
+     12. Arkanis Terampil (Mage): Gunakan skill manual Mage minimal sekali lalu kalahkan Last Boss.
+     13. Jejak Hening (Archer): Dodge berhasil menghindari 3 serangan balik dalam 1 run lalu kalahkan Boss.
+     14. Kolektor Serbabisa: Pernah memilih minimal 1 kartu Class dan 1 kartu Common.
+     15. Tanpa Pergantian: Tamatkan 5 modul menggunakan Class yang sama tanpa ganti role.
+
+7. FITUR PROFIL, STATISTIK AKURASI & LEADERBOARD
+   - Statistik Siswa:
+     * Total EXP dan Level Karakter.
+     * Akurasi Jawaban = (Jumlah Benar / Total Jawaban) x 100% (0% jika belum pernah jawab).
+     * Total monster dan Boss yang berhasil ditumbangkan.
+     * Progres stage terakhir yang dicapai.
+   - Galeri Koleksi: Menampilkan kartu-kartu yang pernah dibuka dan koleksi 15 Badge (terbuka/terkunci).
+   - Leaderboard Global: Peringkat siswa se-sekolah berdasarkan perolehan Total EXP.
+
+8. FITUR AUDIO & PENGATURAN
+   - Pengaturan BGM (Background Music) bertema petualangan fantasi.
+   - Pengaturan SFX (Sound Effects) untuk klik tombol, serangan benar, damage musuh, dan game over.
+   - Toggle on/off audio dan slider volume yang tersimpan permanen di profil user.
+
+--------------------------------------------------------------------------------
+BAGIAN 3: STRUKTUR FOLDER MODULAR LENGKAP UNTUK 3 HALAMAN UTAMA
+(HOME, CHALLENGE, DAN PROFILE)
+--------------------------------------------------------------------------------
+Agar kode terstruktur rapi, scalable, tidak bertumpuk di satu file, dan mudah dirawat
+oleh tim pengembang, arsitektur folder front-end di dalam `mobile/` dibagi menjadi
+folder modular per halaman:
+
+mobile/
+├── app/                                # Navigasi berbasis Expo Router
+│   ├── _layout.tsx                     # Root Layout: Theme, Font, Global Provider
+│   ├── (auth)/                         # Grup Navigasi Autentikasi
+│   │   ├── _layout.tsx
+│   │   ├── login.tsx                   # Layar Login
+│   │   ├── register.tsx                # Layar Registrasi
+│   │   └── onboarding.tsx              # Layar Pengisian Biodata Awal
+│   ├── (tabs)/                         # Grup Bottom Navigation Tab (3 Tab Utama)
+│   │   ├── _layout.tsx                 # Tab Navigator (Konfigurasi Icon Heroicons)
+│   │   ├── index.tsx                   # Entry point TAB 1: HOME
+│   │   ├── challenge.tsx               # Entry point TAB 2: CHALLENGE
+│   │   └── profile.tsx                 # Entry point TAB 3: PROFILE
+│   ├── module/                         # Halaman Detail Modul Belajar (Sub-layar Home)
+│   │   └── [moduleId].tsx              # Layar Pembelajaran Teks + Video YouTube
+│   └── game/                           # Halaman Gameplay Interaktif (Sub-layar Challenge)
+│       ├── select-class.tsx            # Layar Pemilihan Class (Knight/Mage/Archer)
+│       ├── [stageId].tsx               # Layar Arena Pertarungan (Roguelike Battle)
+│       ├── draft-card.tsx              # Layar Modal Penawaran 3 Kartu (Stage 5)
+│       └── game-over.tsx               # Layar Permadeath / Kemenangan Run
+│
+├── components/                         # Komponen UI Terisolasi Berdasarkan Fitur
+│   ├── ui/                             # Komponen Atomik / Reusable Umum
+│   │   ├── Icon.tsx                    # Pembungkus Heroicons Terpusat
+│   │   ├── Button.tsx                  # Tombol serbaguna berbasis tema
+│   │   ├── Card.tsx                    # Kartu kontainer
+│   │   ├── ProgressBar.tsx             # Indikator progres materi/HP
+│   │   ├── Header.tsx                  # Header atas dengan level & user
+│   │   └── BadgeModal.tsx              # Modal notifikasi perolehan badge baru
+│   │
+│   ├── home/                           # FOLDER KHUSUS HALAMAN HOME
+│   │   ├── ModuleCard.tsx              # Card modul materi dengan status lock/unlock
+│   │   ├── ModuleList.tsx              # FlatList daftar modul kurikulum
+│   │   ├── LessonContentView.tsx       # Tampilan pembaca catatan teks materi
+│   │   ├── YouTubePlayerView.tsx       # Wrapper pemutar video YouTube
+│   │   └── CompletionFooter.tsx        # Tombol konfirmasi "Materi Selesai"
+│   │
+│   ├── challenge/                      # FOLDER KHUSUS HALAMAN CHALLENGE
+│   │   ├── StageMap.tsx                # Visualisasi roadmap Stage 1 s/d 10
+│   │   ├── StageNode.tsx               # Titik stage (Normal, Mid-Boss, Last Boss)
+│   │   ├── BattleArena.tsx             # Kontainer utama arena pertarungan
+│   │   ├── CharacterView.tsx           # Tampilan visual sprite Hero & status bar
+│   │   ├── MonsterView.tsx             # Tampilan visual monster, HP bar, & status
+│   │   ├── QuestionBox.tsx             # Kotak teks soal dan timer server
+│   │   ├── OptionButtons.tsx           # Pilihan ganda A, B, C, D
+│   │   ├── HpIndicator.tsx             # Barisan icon hati (Base HP 3)
+│   │   ├── SkillActionPanel.tsx        # Tombol trigger skill manual (Shield/Mage)
+│   │   ├── CardDraftModal.tsx          # Dialog pemilihan 1 dari 3 kartu di Stage 5
+│   │   └── ActiveBuffBar.tsx           # Tampilan kartu buff yang sedang aktif
+│   │
+│   └── profile/                        # FOLDER KHUSUS HALAMAN PROFILE
+│       ├── ProfileHeader.tsx           # Avatar, nama siswa, username, dan level
+│       ├── StatOverviewCard.tsx        # Ringkasan Total EXP, Akurasi %, Kill count
+│       ├── CardCollectionGrid.tsx      # Grid 12 kartu power-up (terbuka/terkunci)
+│       ├── BadgeGallery.tsx            # Galeri 15 badge prestasi
+│       ├── LeaderboardTable.tsx        # Tabel peringkat siswa berdasarkan EXP
+│       ├── AudioSettingsModal.tsx      # Kontrol toggle & slider audio/BGM/SFX
+│       └── EditProfileModal.tsx        # Dialog ubah biodata & kelas
+│
+├── context/                            # React Context & State Management
+│   ├── AuthContext.tsx                 # Autentikasi sesi & token ID Firebase
+│   ├── AudioContext.tsx                # Audio engine (BGM & SFX playback)
+│   └── GameContext.tsx                 # State lokal pertarungan (sinkron ke server)
+│
+├── services/                           # Lapisan Komunikasi API (ke Backend Express)
+│   ├── api.ts                          # Axios/Fetch client dengan interceptor token
+│   ├── authService.ts                  # Endpoint login, register, profile
+│   ├── moduleService.ts                # Endpoint modul belajar (Home)
+│   ├── battleService.ts                # Endpoint start run, answer, skill, draft (Challenge)
+│   └── profileService.ts               # Endpoint statistik, leaderboard, badge (Profile)
+│
+├── constants/                          # Konstanta & Konfigurasi Stat
+│   ├── theme.ts                        # Token warna semantik
+│   ├── icons.ts                        # Mapping nama icon Heroicons
+│   └── gameRules.ts                    # Fallback konstanta visual game
+│
+└── types/                              # Definisi TypeScript Terpusat
+    ├── auth.ts                         # Tipe User, Profil, Onboarding
+    ├── module.ts                       # Tipe Modul, Prasyarat, Materi
+    ├── game.ts                         # Tipe Stage, Soal, Monster, Class, Kartu
+    └── profile.ts                      # Tipe Leaderboard, Badge, Koleksi
+
+--------------------------------------------------------------------------------
+BAGIAN 4: SIMULASI MEKANIK GAME SECARA NYATA (STAGE 5 MID-BOSS HINGGA STAGE 6)
+--------------------------------------------------------------------------------
+Contoh Kasus: Siswa memilih Class "Knight" dan mendapatkan kartu "K05 - Charge Perisai Tambahan"
+
+1. Memasuki Stage 5 (Mid-Boss Encounter):
+   - Musuh: Mid-Boss (HP = 20).
+   - Stat Knight: HP = 3/3, Shield = 1/1 charge.
+   - Target Soal: Wajib menjawab 2 soal benar (masing-masing 10 damage: 10 + 10 = 20).
+
+   * Soal 5.1 Muncul:
+     - Batas waktu: 20 detik.
+     - Siswa menjawab BENAR dalam 7 detik.
+     - Server memvalidasi: Knight melancarkan Base Attack = 10 damage.
+     - HP Mid-Boss tersisa: 20 - 10 = 10 HP.
+     - HP Knight tetap: 3/3.
+
+   * Soal 5.2 Muncul:
+     - Siswa ragu dan menjawab SALAH.
+     - Musuh memicu 1 serangan balik (1 damage).
+     - Resolusi Skill Knight: Shield aktif otomatis mengonsumsi 1 charge untuk menahan serangan!
+     - Hasil: Shield terserap (Shield jadi 0/1 charge), HP Hero TETAP 3/3!
+     - Mid-Boss belum mati (HP masih 10). Siswa menjawab soal berikutnya dengan benar -> 10 damage -> Mid-Boss tumbang!
+
+2. Fase Penawaran Kartu (Tepat setelah Mid-Boss Gugur):
+   - Server mengundi 3 kartu unik dari pool Knight + Common:
+     [K01 Vitalitas Tempur] - [K05 Charge Perisai Tambahan] - [K04 Ramuan Pemulihan].
+   - Siswa memilih kartu: K05 (Charge Perisai Tambahan).
+   - Server memperbarui state run di tb_progres_siswa:
+     * Kapasitas maksimum Shield bertambah dari 1 menjadi 2 charge.
+     * ID Kartu K05 dicatat permanen di tb_kartu_buff_siswa sebagai riwayat koleksi.
+
+3. Memasuki Stage 6 (Monster Elit):
+   - Aturan Pemulihan Awal Stage: Shield Knight memulihkan +1 charge.
+   - Stat Knight di awal Stage 6:
+     * HP: 3/3.
+     * Shield: 1 charge aktif dengan kapasitas maksimum 2 (1/2).
+   - Musuh: Monster Biasa (HP = 10).
+   - Soal 6.1 dijawab BENAR -> Monster menerima 10 damage -> Musuh langsung musnah dalam 1 jawaban!
+
+--------------------------------------------------------------------------------
+BAGIAN 5: ANALISIS & REKOMENDASI MENDALAM TERHADAP 17 POIN KLARIFIKASI FASE 0
+--------------------------------------------------------------------------------
+
+Poin 1: Definisi "Modul" (Mata Pelajaran vs Bab) & Jumlah MVP
+- Analisis: Terjadi benturan antara tb_modul (nama mapel), wireframe Home (bab Matematika: Aljabar, Eksponen, dll.), dan dokumen 2 (menyebut lima modul untuk badge Tanpa Pergantian).
+- Rekomendasi: Definisikan Modul sebagai "Bab Pembelajaran Spesifik" yang memiliki relasi mata_pelajaran. Untuk MVP, buat 2 Modul Matematika (Modul 1: Eksponen & Logaritma, Modul 2: Persamaan Kuadrat) dan 1 Modul Informatika (Modul 3: Berpikir Komputasional) dengan aturan linear: Modul 1 -> Modul 2 -> Modul 3.
+
+Poin 2: Target Kelas Siswa (Kelas X vs XI/XII di DFD)
+- Analisis: DFD menyebut kelas X-XII, namun narasi pedagogis fokus ke Kelas X.
+- Rekomendasi: Batasi target inti MVP pada Siswa SMA Kelas X. Pada dropdown onboarding, berikan pilihan "X-1", "X-2", dst., dengan opsi cadangan "XI" dan "XII" agar skema database tetap fleksibel.
+
+Poin 3: Metode Login (Google OAuth vs Email/Password)
+- Analisis: Dokumen 1 menyebut Google OAuth, tetapi wireframe menyediakan form Email/Password. Di Expo Go, Google Sign-In native membutuhkan library yang kompleks/development build.
+- Rekomendasi: Di Express dan Firebase Auth, aktifkan Email/Password sebagai metode utama (100% stabil di Expo Go) dan siapkan endpoint/skema Google Auth yang siap dihubungkan saat beralih ke development build.
+
+Poin 4: Aturan Permadeath & Definisi "Satu Run"
+- Analisis: Proposal bertentangan antara mengulang dari stage terakhir vs mengulang dari awal.
+- Rekomendasi: Terapkan aturan Roguelike sejati demi integritas game:
+  * Jika HP = 0, pemain gugur (Permadeath). Progres run direset ke Stage 1 modul tersebut.
+  * Kartu buff yang didapat di stage 5 run tersebut hangus (reset ke Base Stats).
+  * Definisi "Satu Run": Menyelesaikan Stage 1 sampai Stage 10 berturut-turut tanpa pernah mengalami kematian (game over). Ini menjadi syarat sah badge Math Grandmaster & Sharpshooter.
+
+Poin 5: Format Pilihan Ganda (A-B di DFD vs A-D di Soal)
+- Analisis: Pilihan A-B di DFD adalah penyederhanaan diagram. Soal SMA selalu A-D (4 opsi).
+- Rekomendasi: Tetapkan 4 pilihan jawaban (A, B, C, D) di seluruh database tb_soal dan UI.
+
+Poin 6: Sumber Stat Karakter (tb_user vs tb_karakter)
+- Analisis: DFD menunjukkan stat dari tb_user, sedangkan ERD menaruhnya di tb_karakter.
+- Rekomendasi: Ikuti ERD. `tb_karakter` menyimpan data master Class (Knight, Mage, Archer beserta stat default), sedangkan `tb_progres_siswa` menyimpan stat dinamis (HP saat ini, charge, buff) selama run berlangsung.
+
+Poin 7: Penyesuaian Stat Dasar (HP 10, Def 5 vs HP 3, Def 0)
+- Analisis: Wireframe proposal lama memakai HP 10 Def 5. Dokumen 2 merevisi menjadi Base HP 3 dan Attack 10.
+- Rekomendasi: Sesuai aturan prioritas, gunakan HP 3 dan Attack 10. Field `def_awal` dihilangkan atau diset 0, digantikan oleh mekanisme skill unik (Shield untuk Knight, Dodge untuk Archer, None untuk Mage). Wireframe disesuaikan menjadi 3 icon hati.
+
+Poin 8: Struktur Soal Stage Boss (Minimal 13 Soal)
+- Analisis: Stage 5 butuh 2 soal, Stage 10 butuh 3 soal, stage lainnya 1 soal.
+- Rekomendasi: Perluas tabel `tb_soal` dengan kolom `urutan_soal` (1-2 untuk stage 5, 1-3 untuk stage 10). Perancang soal/seed data wajib menyertakan minimal 13 soal per modul.
+
+Poin 9: Perilaku Waktu Habis (Timeout)
+- Analisis: Belum ada aturan jika countdown timer mencapai 0 detik.
+- Rekomendasi: Jika waktu habis sebelum siswa memilih, server menganggapnya sebagai "Jawaban Salah" karena kehabisan waktu (memutus streak, memicu serangan balik 1 damage, dan K08 tidak aktif kecuali pemain menjawab opsi salah).
+
+Poin 10: Rumus Perhitungan EXP dan Level Pemain
+- Analisis: Formula EXP dan Level belum dirumuskan secara formal.
+- Rekomendasi:
+  * Monster Biasa = +10 EXP.
+  * Mid-Boss = +25 EXP.
+  * Last Boss = +50 EXP.
+  * Bonus Waktu Cepat (<10 detik) = +5 EXP.
+  * Rumus Level Siswa: Level = Floor(Total_EXP / 100) + 1 (Tiap 100 EXP naik 1 level).
+
+Poin 11: Balancing dan Klarifikasi Kartu Buff Tertentu
+- Rekomendasi Teknis:
+  a. K06 Fokus Mantra: Agar dampaknya terasa signifikan, berikan efek: Jawaban benar <10 detik memberi 12 damage DAN bonus +15 EXP tambahan.
+  b. K07 Critical Strike (20 damage): Jika pada soal ke-2 di Stage 10 terjadi critical hit sehingga HP Boss habis (30 HP tuntas), Boss langsung gugur seketika (Early Victory) tanpa perlu soal ke-3.
+  c. K08 Kesempatan Belajar: Dibatasi berlaku tepat "Satu kali per run" (bukan per soal).
+  d. K10 Serangan Balasan: Klausa Dodge dihapus karena K10 adalah kartu eksklusif Knight.
+  e. K05 Charge Perisai: Kapasitas aktif maksimal menjadi 2. Pemulihan di awal stage tetap +1 charge per stage (tidak langsung penuh 2).
+
+Poin 12: Penguncian Class dalam Run
+- Rekomendasi: Siswa memilih Class di awal Stage 1 dan dikunci sampai modul tersebut tamat atau run berakhir (permadeath). Siswa tidak boleh mengganti Class di tengah jalan. Hal ini menjamin validitas badge "Tanpa Pergantian".
+
+Poin 13: Sinkronisasi Layar Koleksi di Profil
+- Rekomendasi: Di halaman Profile, bagian "Koleksi" menampilkan 12 kartu power-up dengan status grayscale (terkunci) dan berwarna (pernah dibuka). Deretan lingkaran di bawahnya adalah galeri 15 Badge pencapaian.
+
+Poin 14: Prioritas Implementasi Badge & Definisi True Scholar
+- Rekomendasi: Seluruh 15 badge dimasukkan ke dalam MVP. "True Scholar" didefinisikan sebagai kondisi saat seluruh modul yang berstatus aktif di Home telah ditandai `modul_tamat = true`.
+
+Poin 15: Tata Letak Layar Leaderboard
+- Rekomendasi: Buat sub-tab atau modal elegan di Halaman Profile yang menampilkan daftar peringkat 10 besar siswa dengan kolom: Peringkat (#1-10), Avatar, Nama/Username, Kelas, dan Total EXP.
+
+Poin 16: Penanganan Aset Karakter, Monster, dan Boss
+- Rekomendasi: Heroicons hanya untuk navigasi dan tombol UI. Untuk entitas game (Hero, Monster, Boss, Kartu), gunakan gambar pixel-art / vector 2D berformat PNG/SVG dengan visual placeholder bertema dungeon yang menarik.
+
+Poin 17: Penamaan Badge "Math Grandmaster"
+- Rekomendasi: Pertahankan nama "Math Grandmaster" sebagai badge kehormatan menuntaskan modul 1-10, dan catat ini secara resmi dalam dokumentasi sistem.
+
+--------------------------------------------------------------------------------
+BAGIAN 6: PEMBAGIAN TUGAS LENGKAP & MENDETAIL UNTUK 3 ANGGOTA TIM PENGEMBANG
+(PEMISAHAN FOLDER DAN FITUR: HOME, CHALLENGE, DAN PROFILE)
+--------------------------------------------------------------------------------
+
+Agar pengerjaan proyek kelompok Edungeon berjalan efektif, tidak saling bertubrukan (zero merge conflict),
+dan memiliki pembagian beban kerja yang seimbang antara Front-End dan Back-End, proyek ini dibagi
+menjadi 3 domain kerja modular untuk 3 orang mahasiswa:
+
+================================================================================
+👤 ANGGOTA 1: LEAD HALAMAN HOME & MODUL BELAJAR (FASE PEMBELAJARAN)
+================================================================================
+Fokus Utama: Mengembangkan seluruh alur pembelajaran teori, navigasi kurikulum,
+progression lock (sistem modul terkunci), integrasi video edukasi YouTube, dan
+validasi penyelesaian modul materi sebelum siswa masuk ke kuis.
+
+A. Tanggung Jawab Front-End (Folder mobile/):
+   1. Navigasi & Halaman:
+      - `app/(tabs)/index.tsx`: Halaman utama Tab Home (menampilkan greeting, status level siswa, dan daftar modul kurikulum).
+      - `app/module/[moduleId].tsx`: Halaman detail pembelajaran bab materi (teks catatan rumus & pemutar video).
+   2. Komponen Khusus Home (`components/home/`):
+      - `components/home/ModuleCard.tsx`: Komponen kartu modul dengan 3 state visual dinamis:
+        * State 1 (Terkunci): Menampilkan ikon gembok, abu-abu, dan keterangan prasyarat.
+        * State 2 (Tersedia/Mulai): Tombol aktif bercahaya untuk mulai membaca/menonton.
+        * State 3 (Selesai): Dicentang hijau dan keterangan skor/tamat.
+      - `components/home/ModuleList.tsx`: FlatList terstruktur yang memisahkan kelompok mata pelajaran (Matematika dan Informatika).
+      - `components/home/LessonContentView.tsx`: Komponen perender teks materi, rangkuman konsep, dan intisari rumus.
+      - `components/home/YouTubePlayerView.tsx`: Wrapper pemutar video interaktif menggunakan YouTube iframe/player yang responsif.
+      - `components/home/CompletionFooter.tsx`: Tombol aksi "Tandai Materi Selesai" dengan konfirmasi dialog untuk membuka gerbang Challenge.
+   3. Service & Integrasi:
+      - `services/moduleService.ts`: Fungsi pemanggil API ke backend:
+        * `getModules()`: Mengambil daftar modul beserta status lock/unlock berdasarkan progres siswa.
+        * `getModuleDetail(id)`: Mengambil konten teks materi dan URL video YouTube.
+        * `completeModuleLesson(id)`: Menandai materi telah tuntas dibaca.
+
+B. Tanggung Jawab Back-End (Folder server/):
+   1. Routing & Controller:
+      - `server/src/routes/moduleRoutes.ts` & `server/src/controllers/moduleController.ts`:
+        * `GET /api/modules`: Menghitung status terkunci/terbuka tiap modul berdasarkan relasi `id_modul_prasyarat` dan field `modul_tamat` siswa.
+        * `GET /api/modules/:id`: Mengambil detail konten materi modul.
+        * `POST /api/modules/:id/complete-lesson`: Menyimpan status bahwa materi teori telah diselesaikan siswa.
+   2. Data Seeding Materi:
+      - `server/src/scripts/seedModules.ts`: Menyiapkan data master modul kurikulum:
+        * Modul 1 (Matematika): Eksponen & Logaritma (teks rumus + link video).
+        * Modul 2 (Matematika): Persamaan Kuadrat (prasyarat: Modul 1).
+        * Modul 3 (Informatika): Berpikir Komputasional (prasyarat: Modul 2).
+
+C. Skema Data Firestore yang Dikelola:
+   - Koleksi `tb_modul`: id_modul, nama_modul, deskripsi, mata_pelajaran, id_modul_prasyarat, video_url, materi_teks, urutan.
+   - Relasi ke `tb_progres_siswa`: field `materi_selesai` (boolean).
+
+D. Git Branch Kerja: `git checkout -b fitur-home`
+
+
+================================================================================
+👤 ANGGOTA 2: LEAD HALAMAN CHALLENGE & ROGUELIKE BATTLE ENGINE (CORE GAMEPLAY)
+================================================================================
+Fokus Utama: Mengembangkan mesin inti permainan kuis roguelike, roadmap 10 stage,
+arena pertarungan monster/boss, timer otoritatif server, kalkulasi damage/HP,
+mekanik skill 3 Class (Shield, Magnifying Glass, Dodge), dan sistem drafting 12 kartu buff.
+
+A. Tanggung Jawab Front-End (Folder mobile/):
+   1. Navigasi & Halaman:
+      - `app/(tabs)/challenge.tsx`: Halaman roadmap peta dungeon (Stage 1 s/d 10) pada modul aktif.
+      - `app/game/select-class.tsx`: Layar interaktif pemilihan Hero Class (Knight, Mage, Archer) sebelum memulai petualangan.
+      - `app/game/[stageId].tsx`: Layar utama pertarungan roguelike (soal, musuh, HP bar, timer, aksi skill).
+      - `app/game/game-over.tsx`: Layar umpan balik permadeath (jika HP habis) atau kemenangan run (Stage 10 tamat).
+   2. Komponen Khusus Challenge (`components/challenge/`):
+      - `components/challenge/StageMap.tsx` & `StageNode.tsx`: Visualisasi pohon stage 1-10 dengan penanda Mid-Boss (Stage 5) dan Last Boss (Stage 10).
+      - `components/challenge/BattleArena.tsx`: Kontainer visual medan laga antara Hero dan Monster.
+      - `components/challenge/CharacterView.tsx`: Sprite animasi Hero, status HP, dan visual perisai Shield.
+      - `components/challenge/MonsterView.tsx`: Sprite Monster biasa / Boss, nama musuh, dan bar indikator HP (10/20/30).
+      - `components/challenge/QuestionBox.tsx`: Teks soal pilihan ganda dan countdown visual timer.
+      - `components/challenge/OptionButtons.tsx`: 4 tombol pilihan ganda A, B, C, D dengan animasi benar (hijau) / salah (merah).
+      - `components/challenge/HpIndicator.tsx`: Barisan 3 ikon hati (Base HP = 3) dan indikator perisai Buffer K04.
+      - `components/challenge/SkillActionPanel.tsx`: Tombol penggunaan skill manual (Magnifying Glass Mage, K11 Ingatan Arcane, K12 Bidikan Terarah).
+      - `components/challenge/CardDraftModal.tsx`: Pop-up dialog pemilihan 1 dari 3 kartu unik tepat setelah Mid-Boss Stage 5 kalah.
+      - `components/challenge/ActiveBuffBar.tsx`: Baris mini di pojok layar yang menampilkan kartu buff aktif selama Stage 6-10.
+   3. Service & Integrasi:
+      - `services/battleService.ts`: Client API untuk `startRun`, `getStageQuestion`, `submitAnswer`, `useSkill`, dan `selectBuffCard`.
+
+B. Tanggung Jawab Back-End (Folder server/):
+   1. Engine Aturan Game Murni (`server/src/game/`):
+      - `server/src/game/constants.ts`: Pusat konstanta angka stat (Base HP 3, Base Atk 10, Monster HP 10/20/30, kurva Dodge 30%-70%, timer 20/30 detik).
+      - `server/src/game/engine.ts`: Logika resolusi jawaban (menghitung damage ke musuh, giliran serangan balik, penyerapan Shield, pengecekan Dodge, counter K10, dan evaluasi permadeath saat HP = 0).
+      - `server/src/game/cards.ts`: Algoritma penawaran 3 kartu unik (minimal 1 kartu Class pemain + kartu Common tanpa duplikasi) dan eksekusi efek K01 s/d K12.
+   2. Routing & Controller Battle:
+      - `server/src/routes/battleRoutes.ts` & `server/src/controllers/battleController.ts`:
+        * `POST /api/battle/start`: Inisialisasi run baru, penguncian Class, dan reset stat dasar.
+        * `GET /api/battle/question`: Mengambil soal aktif tanpa menyertakan kunci_jawaban (kunci aman di server) serta mencatat timestamp timer di server.
+        * `POST /api/battle/answer`: Memvalidasi jawaban, menghitung waktu terpakai, memperbarui HP musuh/hero, dan mengembalikan hasil.
+        * `POST /api/battle/use-skill`: Memproses pemakaian skill manual Mage (mengembalikan 2 opsi yang harus disembunyikan client).
+        * `POST /api/battle/draft-card`: Menyimpan 1 kartu yang dipilih siswa ke dalam state run dan koleksi permanen.
+   3. Data Seeding Soal, Karakter & Kartu:
+      - `server/src/scripts/seedBattle.ts`: Master 3 Class (`tb_karakter`), 12 kartu power-up (`tb_kartu_buff`), dan minimal 13 soal per modul (8 soal biasa + 2 soal Stage 5 + 3 soal Stage 10) lengkap dengan petunjuk K08.
+
+C. Skema Data Firestore yang Dikelola:
+   - Koleksi `tb_soal`: id_soal, id_modul, stage, urutan_soal, pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, kunci_jawaban, petunjuk, exp_hadiah.
+   - Koleksi `tb_karakter`: master Class Knight, Mage, Archer.
+   - Koleksi `tb_kartu_buff`: master 12 kartu (K01 - K12).
+   - Koleksi `tb_progres_siswa`: status battle run aktif (hp_sekarang, charge_shield, charge_mage, kartu_terpilih, streak_benar, waktu_mulai_soal).
+
+D. Git Branch Kerja: `git checkout -b fitur-challenge`
+
+
+================================================================================
+👤 ANGGOTA 3: LEAD HALAMAN PROFILE, LEADERBOARD, BADGE & SETTINGS
+================================================================================
+Fokus Utama: Mengembangkan seluruh aspek pelaporan capaian siswa, perhitungan akurasi,
+sistem 15 badge prestasi (event-driven evaluation), leaderboard peringkat sekolah,
+galeri 12 kartu koleksi, dan kontrol audio/pengaturan aplikasi.
+
+A. Tanggung Jawab Front-End (Folder mobile/):
+   1. Navigasi & Halaman:
+      - `app/(tabs)/profile.tsx`: Halaman utama Tab Profile (ringkasan statistik, navigasi tab koleksi/badge/leaderboard, dan tombol pengaturan).
+   2. Komponen Khusus Profile (`components/profile/`):
+      - `components/profile/ProfileHeader.tsx`: Kartu identitas siswa (Avatar Class favorit, Nama Lengkap, Username, Kelas, dan Level Siswa).
+      - `components/profile/StatOverviewCard.tsx`: Tampilan 4 metrik performa utama:
+        * Total EXP & Level.
+        * Akurasi Jawaban %: `(jumlah_benar / total_jawaban) x 100%`.
+        * Total Monster Biasa yang Dikalahkan.
+        * Total Boss (Mid-Boss & Last Boss) yang Dikalahkan.
+      - `components/profile/CardCollectionGrid.tsx`: Grid 12 kartu power-up (kartu yang pernah dipilih tampil berwarna dengan detail efek, kartu yang belum pernah dipilih tampil hitam-putih/terkunci).
+      - `components/profile/BadgeGallery.tsx`: Galeri katalog 15 Badge pencapaian (10 klasik + 5 usulan baru) lengkap dengan status terbuka/terkunci dan deskripsi syarat.
+      - `components/profile/LeaderboardTable.tsx`: Tabel peringkat 10 besar siswa se-sekolah berdasarkan Total EXP, dilengkapi highlight posisi peringkat siswa yang sedang login.
+      - `components/profile/AudioSettingsModal.tsx`: Modal dialog pengaturan audio (toggle switch Audio Aktif dan slider Volume BGM/SFX).
+      - `components/profile/EditProfileModal.tsx`: Dialog untuk memperbarui biodata nama siswa dan kelas.
+   3. Service & Audio Context:
+      - `services/profileService.ts`: Client API untuk `getProfileStats`, `getLeaderboard`, `getBadges`, `updateSettings`, dan `updateProfile`.
+      - `context/AudioContext.tsx`: Mengatur pemutaran background music (BGM) dan sound effect (SFX) yang responsif terhadap perubahan volume dan toggle audio.
+
+B. Tanggung Jawab Back-End (Folder server/):
+   1. Mesin Evaluasi 15 Badge (`server/src/game/badges.ts`):
+      - Logika event-driven untuk mengevaluasi syarat perolehan 15 badge:
+        * Event Jawaban: Cek *Sharpshooter* (streak 10), *Lightning Mind* (waktu <5s).
+        * Event Kalahkan Musuh: Cek *The Journey Begins* (1-1), *Monster Slayer* (10 monster), *Mid-Boss Crusher*, *Untouchable*, *Living on the Edge* (HP=1).
+        * Event Modul Tamat: Cek *Math Grandmaster*, *True Scholar* (semua modul tamat), *Tanpa Pergantian* (5 modul 1 class).
+        * Event Kartu & Skill: Cek *Deck Collector* (5 ID kartu berbeda), *Benteng Baja* (Knight serap 3x), *Arkanis Terampil*, *Jejak Hening*, *Kolektor Serbabisa*.
+   2. Routing & Controller Profile & Leaderboard:
+      - `server/src/routes/profileRoutes.ts` & `server/src/controllers/profileController.ts`:
+        * `GET /api/user/profile`: Menghitung total_exp, level, akurasi, dan counter monster/boss.
+        * `GET /api/user/leaderboard`: Query top 10 siswa terurut berdasarkan `total_exp DESC`.
+        * `GET /api/user/badges`: Mengambil katalog 15 badge dan status perolehannya untuk siswa tersebut.
+        * `GET /api/user/card-collection`: Mengambil daftar kartu unik yang pernah dipilih siswa dari `tb_kartu_buff_siswa`.
+        * `PUT /api/user/settings`: Menyimpan preferensi audio (audio_aktif, volume_audio) ke dokumen siswa.
+        * `PUT /api/user/profile`: Memperbarui data diri (nama, kelas).
+   3. Data Seeding Badge:
+      - `server/src/scripts/seedBadges.ts`: Inisialisasi master data 15 badge di Firestore (`tb_badge`).
+
+C. Skema Data Firestore yang Dikelola:
+   - Koleksi `tb_user`: id_user, nama, username, kelas, total_exp, level, jumlah_benar, jumlah_jawaban, monster_dikalahkan, boss_dikalahkan, audio_aktif, volume_audio.
+   - Koleksi `tb_badge`: master data 15 badge (id_badge, nama_badge, deskripsi, icon_name).
+   - Koleksi `tb_badge_siswa`: relasi badge yang telah dimiliki siswa (id_user, id_badge, tgl_perolehan).
+   - Koleksi `tb_kartu_buff_siswa`: riwayat kartu yang pernah dikoleksi siswa lintas modul (id_user, id_kartu, tgl_didapat).
+
+D. Git Branch Kerja: `git checkout -b fitur-profile`
+
+
+================================================================================
+🤝 PROTOKOL INTEGRASI & KERJA SAMA GIT ANTAR-ANGGOTA TIM
+================================================================================
+
+1. Aturan Branching Git:
+   - Branch `main`: Menjadi sumber kebenaran bersama (Single Source of Truth). Seluruh kode di main wajib stabil dan bisa di-build.
+   - Anggota 1 bekerja di branch `fitur-home`.
+   - Anggota 2 bekerja di branch `fitur-challenge`.
+   - Anggota 3 bekerja di branch `fitur-profile`.
+
+2. Alur Penggabungan (Merge Workflow):
+   - Setiap kali akan mulai koding, biasakan selalu mengambil update terbaru:
+     `git pull origin main`
+   - Setelah fitur pada halaman masing-masing selesai dan diuji secara lokal:
+     `git add .`
+     `git commit -m "feat: menyelesaikan komponen X pada halaman Y"`
+     `git push origin nama-branch-kamu`
+   - Buat Pull Request (PR) di GitHub ke branch `main`, lakukan code review bersama anggota kelompok, lalu merge ke `main`.
+
+3. Komponen Bersama (Shared Layer):
+   - Komponen atomik di `components/ui/` (seperti Button, Card, Icon) dan `constants/theme.ts` disepakati bersama di awal agar gaya desain konsisten di ketiga halaman.
+   - Folder masing-masing (`components/home/`, `components/challenge/`, `components/profile/`) berdiri sendiri secara independen sehingga tidak akan terjadi konflik kodingan antar-anggota!
+
+================================================================================
+DOKUMENTASI DAN PEMBAGIAN TUGAS RESMI INI SIAP DIGUNAKAN OLEH SELURUH TIM.
+================================================================================
+

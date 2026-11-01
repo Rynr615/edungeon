@@ -30,6 +30,6 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`[SERVER] Running on http://localhost:${PORT}`);
+app.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`[SERVER] Running on http://localhost:${PORT} and http://0.0.0.0:${PORT}`);
 });

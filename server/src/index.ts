@@ -8,6 +8,7 @@ dotenv.config();
 
 import "./config/firebase.js";
 import userRoutes from "./routes/userRoutes.js";
+import battleRoutes from "./routes/battleRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/battle", battleRoutes);
 
 // Endpoint Health Check
 app.get("/api/health", (req: Request, res: Response) => {

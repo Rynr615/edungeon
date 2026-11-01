@@ -1,0 +1,14 @@
+Anggota 2 validation (2026-11-01, Asia/Bangkok)
+Mobile TypeScript: PASS
+Mobile ESLint: PASS (0 warnings)
+Expo Doctor: PASS 21/21
+Server TypeScript build: PASS
+Pure engine tests: PASS 18/18
+Authenticated API: Knight, Mage, Archer each completed 13 answers and 10 stages
+API checks: authentication, lesson lock, draft validation, concurrent duplicate answers, Mage skill, K08 retry, authoritative timeout PASS
+Emulator visuals: map, Class selection, arena, sprites, card draft verified
+All temporary test and preview state restored/removed
+Home/Profile/authentication files checked unchanged
+API /api/health: success
+Metro /status: packager-status:running
+Integration pending: actual user has no materi_selesai record; Anggota 1 supplies it

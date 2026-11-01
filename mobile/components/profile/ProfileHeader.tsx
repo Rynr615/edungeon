@@ -14,8 +14,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   profile,
   onPressSettings,
 }) => {
-  const level = profile?.level || 15;
-  const expInLevel = profile?.exp_in_level ?? (profile?.total_exp ? profile.total_exp % 100 : 30);
+  const level = profile?.level ?? 1;
+  const expInLevel = profile?.exp_in_level ?? (profile?.total_exp ? profile.total_exp % 100 : 0);
   const nextLevelExp = profile?.next_level_exp || 100;
   const expPercentage = Math.min(Math.round((expInLevel / nextLevelExp) * 100), 100);
 
@@ -33,7 +33,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           {/* Name & Level */}
           <View className="flex-1">
             <Text className="font-mono text-gray-900 font-semibold text-sm" numberOfLines={1}>
-              {profile?.nama || "Ryan Yanuar Pradana"}
+              {profile?.nama || "Pahlawan Edungeon"}
             </Text>
             <View className="flex-row items-center mt-1">
               <Icon name="StarIcon" variant="outline" size={15} color="#eab308" />

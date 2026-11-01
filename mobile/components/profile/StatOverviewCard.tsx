@@ -12,10 +12,10 @@ interface StatOverviewProps {
 }
 
 export const StatOverviewCard: React.FC<StatOverviewProps> = ({
-  monsterCount = 24,
-  bossCount = 2,
-  accuracy = 85,
-  highestStage = "3-1",
+  monsterCount = 0,
+  bossCount = 0,
+  accuracy = 0,
+  highestStage = "1-1",
 }) => {
   return (
     <View className="mb-2">

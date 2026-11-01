@@ -25,6 +25,12 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  React.useEffect(() => {
+    if (authProfile) {
+      setProfile(authProfile);
+    }
+  }, [authProfile]);
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -104,10 +110,10 @@ export default function ProfileScreen() {
 
         {/* 2. Statistik: 2x2 Grid */}
         <StatOverviewCard
-          monsterCount={profile?.monster_dikalahkan || 24}
-          bossCount={profile?.boss_dikalahkan || 2}
-          accuracy={profile?.akurasi || 85}
-          highestStage={profile?.highest_stage || "3-1"}
+          monsterCount={profile?.monster_dikalahkan ?? 0}
+          bossCount={profile?.boss_dikalahkan ?? 0}
+          accuracy={profile?.akurasi ?? 0}
+          highestStage={profile?.highest_stage || "1-1"}
         />
 
         {/* 3. Koleksi Card: 3 Cards (ATK+2, HP+15, DEF+4) & 4 Badge Circles */}

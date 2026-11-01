@@ -19,18 +19,27 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const { userProfile, fetchProfile } = useAuth();
 
-  const [nama, setNama] = useState(userProfile?.nama || "Ryan Yanuar Pradana");
+  const [nama, setNama] = useState(userProfile?.nama || "");
   const [namaPanggilan, setNamaPanggilan] = useState(
-    userProfile?.nama_panggilan || "Ryan"
+    userProfile?.nama_panggilan || ""
   );
-  const [kelas, setKelas] = useState(userProfile?.kelas || "XI IPA 1");
-  const [noHp, setNoHp] = useState(userProfile?.no_hp || "+628123456788");
+  const [kelas, setKelas] = useState(userProfile?.kelas || "");
+  const [noHp, setNoHp] = useState(userProfile?.no_hp || "");
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const level = userProfile?.level || 15;
-  const username = userProfile?.username || "JohnDoe";
-  const email = userProfile?.email || "email@gmail.com";
+  React.useEffect(() => {
+    if (userProfile) {
+      if (userProfile.nama) setNama(userProfile.nama);
+      if (userProfile.nama_panggilan) setNamaPanggilan(userProfile.nama_panggilan);
+      if (userProfile.kelas) setKelas(userProfile.kelas);
+      if (userProfile.no_hp) setNoHp(userProfile.no_hp);
+    }
+  }, [userProfile]);
+
+  const level = userProfile?.level ?? 1;
+  const username = userProfile?.username || "pahlawan";
+  const email = userProfile?.email || "siswa@edungeon.com";
 
   const handleSave = async () => {
     if (!nama.trim() || nama.trim().length < 2) {
@@ -79,7 +88,7 @@ export default function EditProfileScreen() {
             <Icon name="UserIcon" variant="solid" size={42} color="#1e293b" />
           </View>
           <Text className="font-mono text-gray-900 text-sm font-semibold text-center">
-            {nama}
+            {nama || "Pahlawan Edungeon"}
           </Text>
           <View className="flex-row items-center justify-center mt-1">
             <Icon name="StarIcon" variant="outline" size={15} color="#eab308" />
@@ -131,7 +140,7 @@ export default function EditProfileScreen() {
                 color="#eab308"
               />
               <Text className="font-mono text-gray-400 text-sm ml-1.5" numberOfLines={1}>
-                {nama}
+                {nama || "Belum diisi"}
               </Text>
             </View>
           </TouchableOpacity>
@@ -144,7 +153,9 @@ export default function EditProfileScreen() {
           >
             <Text className="text-gray-900 font-semibold text-sm">Nama Panggilan</Text>
             <View className="flex-row items-center">
-              <Text className="font-mono text-gray-400 text-sm mr-2">{namaPanggilan}</Text>
+              <Text className="font-mono text-gray-400 text-sm mr-2">
+                {namaPanggilan || "Belum diatur"}
+              </Text>
               <Icon name="ChevronRightIcon" variant="outline" size={16} color="#374151" />
             </View>
           </TouchableOpacity>
@@ -156,7 +167,7 @@ export default function EditProfileScreen() {
             className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
           >
             <Text className="text-gray-900 font-semibold text-sm">Kelas</Text>
-            <Text className="font-mono text-gray-400 text-sm">{kelas}</Text>
+            <Text className="font-mono text-gray-400 text-sm">{kelas || "Belum diatur"}</Text>
           </TouchableOpacity>
 
           {/* 4. No. HP */}
@@ -166,7 +177,7 @@ export default function EditProfileScreen() {
             className="flex-row items-center justify-between border-b border-gray-200 pb-2.5 mb-4"
           >
             <Text className="text-gray-900 font-semibold text-sm">No. HP</Text>
-            <Text className="font-mono text-gray-400 text-sm">{noHp}</Text>
+            <Text className="font-mono text-gray-400 text-sm">{noHp || "Belum diatur"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

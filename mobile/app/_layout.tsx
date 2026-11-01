@@ -39,14 +39,23 @@ function RootLayoutNav() {
       <Stack.Screen name="(auth)/register" />
       <Stack.Screen name="(auth)/onboarding" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="profile/edit" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen name="profile/leaderboard" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen name="profile/settings" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen name="profile/badges" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen name="profile/cards" options={{ animation: "slide_from_right" }} />
     </Stack>
   );
 }
 
+import { AudioProvider } from "../context/AudioContext";
+
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <AudioProvider>
+        <RootLayoutNav />
+      </AudioProvider>
     </AuthProvider>
   );
 }

@@ -139,15 +139,15 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       updated_at: new Date().toISOString(),
     };
 
-    if (nama_panggilan) {
+    if (nama_panggilan !== undefined) {
       updateData.nama_panggilan = String(nama_panggilan).trim();
     }
 
-    if (kelas) {
+    if (kelas !== undefined) {
       updateData.kelas = String(kelas).trim();
     }
 
-    if (no_hp) {
+    if (no_hp !== undefined) {
       updateData.no_hp = String(no_hp).trim();
     }
 

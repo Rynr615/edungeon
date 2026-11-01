@@ -1,70 +1,101 @@
 // mobile/components/profile/StatOverviewCard.tsx
 import React from "react";
 import { View, Text } from "react-native";
-import { ProfileStats } from "../../types/profile";
-import { GhostIcon, SkullIcon, TargetIcon } from "./WireframeIcons";
-import { Icon } from "../ui/Icon";
+import { Icon, IconName } from "../ui/Icon";
 
-interface StatOverviewCardProps {
-  stats: ProfileStats | null;
+interface StatItem {
+  id: string;
+  label: string;
+  value: string | number;
+  icon: IconName;
+  color: string;
+  bgColor: string;
+  borderColor: string;
 }
 
-export const StatOverviewCard: React.FC<StatOverviewCardProps> = ({ stats }) => {
-  const monsterKalah = stats?.monster_dikalahkan ?? 24;
-  const bossKalah = stats?.boss_dikalahkan ?? 2;
-  const akurasi = stats?.akurasi ?? 85;
-  const stageSelesai = stats?.stage_selesai || "3-1";
+interface StatOverviewProps {
+  monsterCount: number;
+  bossCount: number;
+  accuracy: number;
+  highestStage?: string;
+}
+
+export const StatOverviewCard: React.FC<StatOverviewProps> = ({
+  monsterCount = 0,
+  bossCount = 0,
+  accuracy = 0,
+  highestStage = "Stage 1-1",
+}) => {
+  const stats: StatItem[] = [
+    {
+      id: "monster",
+      label: "Monster Dikalahkan",
+      value: monsterCount,
+      icon: "FireIcon",
+      color: "#ef4444",
+      bgColor: "bg-red-500/10",
+      borderColor: "border-red-500/30",
+    },
+    {
+      id: "boss",
+      label: "Boss Ditaklukkan",
+      value: bossCount,
+      icon: "TrophyIcon",
+      color: "#a855f7",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/30",
+    },
+    {
+      id: "accuracy",
+      label: "Akurasi Jawaban",
+      value: `${accuracy}%`,
+      icon: "AcademicCapIcon",
+      color: "#22c55e",
+      bgColor: "bg-emerald-500/10",
+      borderColor: "border-emerald-500/30",
+    },
+    {
+      id: "stage",
+      label: "Stage Selesai",
+      value: highestStage,
+      icon: "FlagIcon",
+      color: "#3b82f6",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
+    },
+  ];
 
   return (
     <View className="mb-4">
-      {/* Title Section */}
-      <Text className="text-[#0f172a] text-lg font-bold mb-3">Statistik</Text>
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-text font-bold text-base tracking-tight">
+          Ringkasan Statistik
+        </Text>
+        <Text className="text-subtext text-xs">Performa Petualangan</Text>
+      </View>
 
-      {/* Grid 2x2 Light Blue-Gray Cards */}
       <View className="flex-row flex-wrap justify-between">
-        {/* 1. Monster dikalahkan */}
-        <View className="w-[48%] bg-[#DBE4EC] p-3.5 rounded-2xl mb-3">
-          <GhostIcon size={24} color="#0f172a" />
-          <Text className="text-[#0f172a] text-2xl font-bold mt-1.5 font-mono">
-            {monsterKalah}
-          </Text>
-          <Text className="text-[#0f172a] text-xs font-mono mt-0.5">
-            Monster dikalahkan
-          </Text>
-        </View>
+        {stats.map((item) => (
+          <View
+            key={item.id}
+            className={`w-[48%] bg-surface border ${item.borderColor} p-3.5 rounded-2xl mb-3 shadow-sm`}
+          >
+            <View className="flex-row items-center justify-between mb-2">
+              <View
+                className={`w-9 h-9 rounded-xl ${item.bgColor} items-center justify-center`}
+              >
+                <Icon name={item.icon} variant="solid" size={20} color={item.color} />
+              </View>
+            </View>
 
-        {/* 2. Boss dikalahkan */}
-        <View className="w-[48%] bg-[#DBE4EC] p-3.5 rounded-2xl mb-3">
-          <SkullIcon size={24} color="#0f172a" />
-          <Text className="text-[#0f172a] text-2xl font-bold mt-1.5 font-mono">
-            {bossKalah}
-          </Text>
-          <Text className="text-[#0f172a] text-xs font-mono mt-0.5">
-            Boss dikalahkan
-          </Text>
-        </View>
-
-        {/* 3. Akurasi jawaban */}
-        <View className="w-[48%] bg-[#DBE4EC] p-3.5 rounded-2xl">
-          <TargetIcon size={24} color="#0f172a" />
-          <Text className="text-[#0f172a] text-2xl font-bold mt-1.5 font-mono">
-            {akurasi}%
-          </Text>
-          <Text className="text-[#0f172a] text-xs font-mono mt-0.5">
-            Akurasi jawaban
-          </Text>
-        </View>
-
-        {/* 4. Stage Selesai */}
-        <View className="w-[48%] bg-[#DBE4EC] p-3.5 rounded-2xl">
-          <Icon name="FlagIcon" variant="solid" size={24} color="#0f172a" />
-          <Text className="text-[#0f172a] text-2xl font-bold mt-1.5 font-mono">
-            {stageSelesai}
-          </Text>
-          <Text className="text-[#0f172a] text-xs font-mono mt-0.5">
-            Stage Selesai
-          </Text>
-        </View>
+            <Text className="text-text font-black text-2xl tracking-tight">
+              {item.value}
+            </Text>
+            <Text className="text-subtext font-medium text-[11px] mt-0.5" numberOfLines={1}>
+              {item.label}
+            </Text>
+          </View>
+        ))}
       </View>
     </View>
   );

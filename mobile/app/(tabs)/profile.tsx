@@ -1,130 +1,82 @@
 // mobile/app/(tabs)/profile.tsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
+  Text,
   ScrollView,
   RefreshControl,
-  Alert,
   ActivityIndicator,
-  Text,
+  Alert,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import {
-  UserProfile,
-  ProfileStats,
-  EditProfilePayload,
-  AudioSettingsPayload,
-} from "../../types/profile";
-import { profileService, calculateProfileStats } from "../../services/profileService";
-import {
-  ProfileHeader,
-  StatOverviewCard,
-  KoleksiCard,
-  ProfileMenuList,
-  EditProfileView,
-  AudioSettingsModal,
-} from "../../components/profile";
+import { profileService } from "../../services/profileService";
+import { BadgeItem, CardCollectionItem, UserProfile } from "../../types/profile";
+import { ProfileHeader } from "../../components/profile/ProfileHeader";
+import { StatOverviewCard } from "../../components/profile/StatOverviewCard";
+import { CardCollectionGrid } from "../../components/profile/CardCollectionGrid";
+import { BadgeGallery } from "../../components/profile/BadgeGallery";
+import { ProfileMenuActions } from "../../components/profile/ProfileMenuActions";
+import { Icon, IconName } from "../../components/ui/Icon";
 
 export default function ProfileScreen() {
-  const { userProfile, logoutUser, updateLocalProfile } = useAuth();
+  const router = useRouter();
+  const { userProfile: authProfile, logoutUser, fetchProfile } = useAuth();
 
-  // Navigation view: "main" (Image 2) vs "edit_profile" (Image 1)
-  const [currentView, setCurrentView] = useState<"main" | "edit_profile">("main");
+  const [profile, setProfile] = useState<UserProfile | null>(authProfile);
+  const [badges, setBadges] = useState<BadgeItem[]>([]);
+  const [cards, setCards] = useState<CardCollectionItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // State Data Profil
-  const [activeUser, setActiveUser] = useState<UserProfile | null>(userProfile);
-  const [stats, setStats] = useState<ProfileStats | null>(
-    userProfile ? calculateProfileStats(userProfile) : null
-  );
+  // Selected item modals
+  const [selectedBadge, setSelectedBadge] = useState<BadgeItem | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardCollectionItem | null>(null);
 
-  // Modal & Loading States
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-
-  // Sinkronisasi data saat userProfile context berubah
-  useEffect(() => {
-    if (userProfile) {
-      setActiveUser(userProfile);
-      setStats(calculateProfileStats(userProfile));
-    }
-  }, [userProfile]);
-
-  // Load Data Profil dari Server
-  const loadProfileData = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      const fullData = await profileService.getFullProfileData();
-      setActiveUser(fullData.user);
-      setStats(fullData.stats);
-    } catch (error) {
-      console.warn("[ProfileScreen] Fallback data lokal:", error);
-      if (userProfile) {
-        setActiveUser(userProfile);
-        setStats(calculateProfileStats(userProfile));
+      setLoading(true);
+      const [profileRes, badgesRes, cardsRes] = await Promise.allSettled([
+        profileService.getProfile(),
+        profileService.getUserBadges(),
+        profileService.getUserCardCollection(),
+      ]);
+
+      if (profileRes.status === "fulfilled") {
+        setProfile(profileRes.value);
       }
+      if (badgesRes.status === "fulfilled") {
+        setBadges(badgesRes.value);
+      }
+      if (cardsRes.status === "fulfilled") {
+        setCards(cardsRes.value);
+      }
+    } catch (err) {
+      console.error("[ProfileScreen] Error loading data:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [userProfile]);
+  }, []);
 
-  useEffect(() => {
-    loadProfileData();
-  }, [loadProfileData]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    loadProfileData();
-  }, [loadProfileData]);
+    await fetchProfile();
+    await loadData();
+  }, [fetchProfile, loadData]);
 
-  // Handler Simpan Data Edit Profil
-  const handleSaveProfile = async (payload: EditProfilePayload) => {
-    setIsSaving(true);
-    try {
-      const updated = await profileService.updateProfile(payload);
-      setActiveUser(updated);
-      setStats(calculateProfileStats(updated));
-      updateLocalProfile(updated);
-      Alert.alert("Sukses", "Informasi profil berhasil diperbarui!");
-    } catch (err: any) {
-      console.error("[ProfileScreen] Error update profile:", err);
-      Alert.alert("Gagal", err.message || "Gagal memperbarui profil.");
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Handler Simpan Pengaturan Suara
-  const handleSaveSettings = async (payload: AudioSettingsPayload) => {
-    setIsSaving(true);
-    try {
-      await profileService.updateSettings(payload);
-      if (activeUser) {
-        const updated = {
-          ...activeUser,
-          audio_aktif: payload.audio_aktif,
-          volume_audio: payload.volume_audio,
-        };
-        setActiveUser(updated);
-        updateLocalProfile(updated);
-      }
-      Alert.alert("Sukses", "Pengaturan suara berhasil disimpan!");
-    } catch (err: any) {
-      console.error("[ProfileScreen] Error update settings:", err);
-      Alert.alert("Gagal", err.message || "Gagal menyimpan pengaturan suara.");
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Handler Konfirmasi Logout
-  const handleLogoutPress = () => {
+  const handleLogout = () => {
     Alert.alert(
       "Konfirmasi Keluar",
-      "Apakah kamu yakin ingin keluar dari akun Edungeon?",
+      "Apakah kamu yakin ingin keluar dari akun Edungeon ini?",
       [
         { text: "Batal", style: "cancel" },
         {
@@ -134,7 +86,7 @@ export default function ProfileScreen() {
             try {
               await logoutUser();
             } catch (err: any) {
-              Alert.alert("Error", "Gagal melakukan logout.");
+              Alert.alert("Gagal Keluar", err.message || "Terjadi kesalahan");
             }
           },
         },
@@ -142,74 +94,176 @@ export default function ProfileScreen() {
     );
   };
 
-  if (loading && !activeUser) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#0f172a" />
-        <Text className="text-gray-500 text-xs mt-3 font-mono">Memuat Profil...</Text>
-      </View>
-    );
-  }
+  const hasIncomplete = !profile?.nama_panggilan || !profile?.no_hp;
 
-  // JIKA TAMPILAN: EDIT PROFILE (IMAGE 1)
-  if (currentView === "edit_profile") {
-    return (
-      <View className="flex-1 bg-white">
-        <EditProfileView
-          user={activeUser}
-          onBack={() => setCurrentView("main")}
-          onSave={handleSaveProfile}
-          loading={isSaving}
-        />
-      </View>
-    );
-  }
-
-  // TAMPILAN UTAMA: PROFILE WIREFRAME (IMAGE 2)
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-background">
       <ScrollView
-        className="flex-1 px-5 pt-8"
+        className="flex-1 px-5 pt-12"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#0f172a"
-            colors={["#0f172a"]}
+            tintColor="#3b82f6"
+            colors={["#3b82f6"]}
           />
         }
       >
-        {/* 1. Header Profil (Title "Profile", Avatar, Nama, ⭐ Level 15, Cog Button, 30% Progress Bar) */}
+        {/* Page Title & Status */}
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-text font-black text-2xl tracking-tight">
+            Profil Pahlawan
+          </Text>
+          {loading && !refreshing && (
+            <ActivityIndicator size="small" color="#3b82f6" />
+          )}
+        </View>
+
+        {/* 1. Header Profil (Avatar, Level, EXP) */}
         <ProfileHeader
-          user={activeUser}
-          stats={stats}
-          onSettingsPress={() => setIsSettingsModalVisible(true)}
+          profile={profile}
+          onPressSettings={() => router.push("/profile/settings" as any)}
+          onPressEdit={() => router.push("/profile/edit" as any)}
         />
 
-        {/* 2. Section "Statistik" (2x2 Grid: 24 Monster, 2 Boss, 85% Akurasi, 3-1 Stage) */}
-        <StatOverviewCard stats={stats} />
+        {/* 2. Ringkasan Statistik (2x2 Grid) */}
+        <StatOverviewCard
+          monsterCount={profile?.monster_dikalahkan || 0}
+          bossCount={profile?.boss_dikalahkan || 0}
+          accuracy={profile?.akurasi || 0}
+          highestStage={profile?.highest_stage || "Stage 1-1"}
+        />
 
-        {/* 3. Section "Koleksi" (3 Buff Cards: ATK+2, HP+15, DEF+4 + 4 Badges Bulat) */}
-        <KoleksiCard />
+        {/* 3. Koleksi Kartu Buff (3 Preview Cards) */}
+        <CardCollectionGrid
+          cards={cards}
+          onPressSeeAll={() => router.push("/profile/cards" as any)}
+          onPressCard={(c) => setSelectedCard(c)}
+        />
 
-        {/* 4. Menu List (Edit Profile dengan ⚠️, Settings, Log out) */}
-        <ProfileMenuList
-          onEditProfilePress={() => setCurrentView("edit_profile")}
-          onSettingsPress={() => setIsSettingsModalVisible(true)}
-          onLogoutPress={handleLogoutPress}
+        {/* 4. Badge Prestasi (4 Preview Circles) */}
+        <BadgeGallery
+          badges={badges}
+          onPressSeeAll={() => router.push("/profile/badges" as any)}
+          onPressBadge={(b) => setSelectedBadge(b)}
+        />
+
+        {/* 5. Menu Tindakan & Navigasi */}
+        <ProfileMenuActions
+          hasIncompleteProfile={hasIncomplete}
+          onPressEditProfile={() => router.push("/profile/edit" as any)}
+          onPressLeaderboard={() => router.push("/profile/leaderboard" as any)}
+          onPressSettings={() => router.push("/profile/settings" as any)}
+          onPressLogout={handleLogout}
         />
       </ScrollView>
 
-      {/* Modal Pengaturan Suara (Clean White Wireframe) */}
-      <AudioSettingsModal
-        visible={isSettingsModalVisible}
-        audioAktif={activeUser?.audio_aktif ?? true}
-        volumeAudio={activeUser?.volume_audio ?? 1.0}
-        onClose={() => setIsSettingsModalVisible(false)}
-        onSave={handleSaveSettings}
-        loading={isSaving}
-      />
+      {/* MODAL DETAIL BADGE */}
+      <Modal
+        visible={!!selectedBadge}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedBadge(null)}
+      >
+        <View className="flex-1 bg-black/80 justify-center items-center px-6">
+          <View className="bg-surface border border-surface-light rounded-3xl p-6 w-full max-w-sm items-center shadow-2xl">
+            <View className="w-20 h-20 rounded-full border-4 border-amber-400 bg-amber-500/20 items-center justify-center mb-4">
+              <Icon
+                name={
+                  selectedBadge?.unlocked && selectedBadge.icon_name
+                    ? (selectedBadge.icon_name as IconName)
+                    : "LockClosedIcon"
+                }
+                variant="solid"
+                size={36}
+                color={selectedBadge?.unlocked ? "#f59e0b" : "#94a3b8"}
+              />
+            </View>
+
+            <View className="bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/40 mb-2">
+              <Text className="text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+                {selectedBadge?.tier} • {selectedBadge?.kategori}
+              </Text>
+            </View>
+
+            <Text className="text-text font-black text-xl text-center mb-2">
+              {selectedBadge?.nama}
+            </Text>
+
+            <Text className="text-subtext text-center text-sm leading-5 mb-5">
+              {selectedBadge?.deskripsi}
+            </Text>
+
+            <View className="w-full bg-background/80 p-3 rounded-2xl border border-surface-light mb-5">
+              <Text className="text-slate-400 text-xs font-semibold text-center">
+                Status:{" "}
+                <Text
+                  className={`font-bold ${
+                    selectedBadge?.unlocked ? "text-emerald-400" : "text-slate-500"
+                  }`}
+                >
+                  {selectedBadge?.unlocked
+                    ? `Terbuka (${selectedBadge.tgl_perolehan?.slice(0, 10) || "Tercapai"})`
+                    : "Belum Tercapai"}
+                </Text>
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setSelectedBadge(null)}
+              className="bg-primary w-full py-3.5 rounded-xl items-center"
+            >
+              <Text className="text-white font-bold text-base">Tutup</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL DETAIL KARTU BUFF */}
+      <Modal
+        visible={!!selectedCard}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedCard(null)}
+      >
+        <View className="flex-1 bg-black/80 justify-center items-center px-6">
+          <View className="bg-surface border border-surface-light rounded-3xl p-6 w-full max-w-sm items-center shadow-2xl">
+            <View className="w-16 h-16 rounded-2xl border-2 border-blue-400 bg-blue-500/20 items-center justify-center mb-4">
+              <Icon
+                name={selectedCard?.unlocked ? "BoltIcon" : "QuestionMarkCircleIcon"}
+                variant="solid"
+                size={32}
+                color={selectedCard?.unlocked ? "#38bdf8" : "#94a3b8"}
+              />
+            </View>
+
+            <View className="bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/40 mb-2">
+              <Text className="text-blue-400 font-extrabold text-xs uppercase tracking-wider">
+                {selectedCard?.class_kartu} • {selectedCard?.tipe_efek || "Buff"}
+              </Text>
+            </View>
+
+            <Text className="text-text font-black text-xl text-center mb-2">
+              {selectedCard?.nama_kartu}
+            </Text>
+
+            <Text className="text-subtext text-center text-sm leading-5 mb-5">
+              {selectedCard?.deskripsi ||
+                (selectedCard?.unlocked
+                  ? "Kartu buff roguelike ini memberikan bonus kekuatan khusus saat pertempuran dungeon."
+                  : "Selesaikan tantangan di dungeon untuk menemukan dan membuka kartu buff ini.")}
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => setSelectedCard(null)}
+              className="bg-primary w-full py-3.5 rounded-xl items-center"
+            >
+              <Text className="text-white font-bold text-base">Tutup</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

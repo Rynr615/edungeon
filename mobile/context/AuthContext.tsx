@@ -8,6 +8,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "../services/firebase";
+
 import { UserProfile } from "../types/profile";
 
 interface AuthContextType {
@@ -21,7 +22,6 @@ interface AuthContextType {
   submitOnboardingData: (nama: string, username: string, kelas: string) => Promise<void>;
   logoutUser: () => Promise<void>;
   fetchProfile: () => Promise<void>;
-  updateLocalProfile: (updated: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -117,10 +117,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
   };
 
-  const updateLocalProfile = (updated: Partial<UserProfile>) => {
-    setUserProfile((prev) => (prev ? { ...prev, ...updated } : null));
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -134,7 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         submitOnboardingData,
         logoutUser,
         fetchProfile,
-        updateLocalProfile,
       }}
     >
       {children}

@@ -1,15 +1,8 @@
 // mobile/types/profile.ts
-/**
- * Definisi Type Data untuk Modul Halaman Profile, Edit Profile,
- * Pengaturan Audio, 15 Badge Pencapaian, dan Leaderboard
- * Sesuai Acuan Wireframe dan Dokumen Spesifikasi Edungeon (Anggota 3).
- */
 
-export type HeroClass = "knight" | "mage" | "archer";
+export type BadgeCategory = "klasik" | "boss" | "streak" | "spesialis";
+export type BadgeTier = "bronze" | "silver" | "gold" | "platinum";
 
-/**
- * Data Entitas Siswa Lengkap dari tb_user
- */
 export interface UserProfile {
   id_user: string;
   nama: string;
@@ -18,101 +11,70 @@ export interface UserProfile {
   email: string;
   kelas: string;
   no_hp?: string;
+  avatar: string;
   total_exp: number;
   level: number;
-  jumlah_benar: number;
-  jumlah_jawaban: number;
+  exp_in_level: number;
+  next_level_exp: number;
+  akurasi: number;
   monster_dikalahkan: number;
   boss_dikalahkan: number;
-  stage_selesai?: string;
+  highest_stage?: string;
   audio_aktif: boolean;
-  volume_audio: number; // Skala 0.0 - 1.0 (0% - 100%)
-  avatar_class?: HeroClass | string;
+  volume_audio: number;
   created_at?: string;
+  updated_at?: string;
 }
 
-/**
- * Statistik Game & Akademik Siswa untuk Grid 2x2 di Halaman Profile
- */
-export interface ProfileStats {
-  total_exp: number;
-  level: number;
-  exp_saat_ini: number; // Sisa EXP di level berjalan (misal 156)
-  exp_target_level: number; // Target EXP level berikutnya (misal 200)
-  persentase_level: number; // 0 - 100% untuk progress bar
-  monster_dikalahkan: number;
-  boss_dikalahkan: number;
-  stage_selesai: string; // e.g. "3-1"
-  akurasi: number; // (jumlah_benar / jumlah_jawaban) * 100% (0 jika belum ada jawaban)
-  jumlah_benar: number;
-  jumlah_jawaban: number;
-}
-
-/**
- * Payload untuk Formulir Edit Profil (EditProfileModal)
- */
-export interface EditProfilePayload {
+export interface UpdateProfileDTO {
   nama: string;
   nama_panggilan?: string;
-  kelas: string;
+  kelas?: string;
   no_hp?: string;
-  avatar_class?: HeroClass | string;
+  avatar?: string;
 }
 
-/**
- * Payload untuk Formulir Pengaturan Suara (AudioSettingsModal)
- */
-export interface AudioSettingsPayload {
-  audio_aktif: boolean;
-  volume_audio: number; // Nilai desimal 0.0 - 1.0
-}
-
-/**
- * Format Entitas Badge Prestasi (15 Badge Katalog)
- */
 export interface BadgeItem {
-  id_badge: string; // misal 'B01' s/d 'B15'
-  nama_badge: string;
+  id_badge: string;
+  kode: string;
+  nama: string;
   deskripsi: string;
-  kategori: "universal" | "knight" | "mage" | "archer";
-  icon_name: string; // Nama icon Heroicons yang dipetakan
-  terbuka: boolean; // true jika sudah diraih siswa
-  tgl_perolehan?: string | null;
+  kategori: BadgeCategory;
+  tier: BadgeTier;
+  class_khusus: string | null;
+  icon_name: string;
+  unlocked: boolean;
+  tgl_perolehan: string | null;
 }
 
-/**
- * Format Entitas Kartu Power-Up Koleksi (12 Kartu K01 - K12)
- */
 export interface CardCollectionItem {
-  id_kartu: string; // 'K01' s/d 'K12'
+  id_kartu: string;
+  kode_kartu: string;
   nama_kartu: string;
-  class_kartu: "knight" | "mage" | "archer" | "common";
   deskripsi: string;
-  terbuka: boolean; // true jika pernah dipilih siswa sepanjang petualangan
-  tgl_didapat?: string | null;
+  class_kartu: string;
+  tipe_efek: string;
+  unlocked: boolean;
+  tgl_didapat: string | null;
 }
 
-/**
- * Format Data Baris Siswa pada Tabel Leaderboard
- */
 export interface LeaderboardUser {
-  rank: number; // Peringkat #1 - #10
+  rank: number;
   id_user: string;
   nama: string;
   username: string;
   kelas: string;
+  avatar: string;
   total_exp: number;
   level: number;
-  avatar_class?: HeroClass | string;
-  is_current_user: boolean; // Penanda untuk baris akun siswa yang sedang aktif
 }
 
-/**
- * Response Lengkap dari Endpoint Profile Backend
- */
-export interface ProfileDataResponse {
-  user: UserProfile;
-  stats: ProfileStats;
-  badges: BadgeItem[];
-  cards: CardCollectionItem[];
+export interface LeaderboardResponse {
+  leaderboard: LeaderboardUser[];
+  user_rank: number | null;
+}
+
+export interface AudioSettingsDTO {
+  audio_aktif?: boolean;
+  volume_audio?: number;
 }

@@ -1,92 +1,91 @@
 // mobile/components/profile/StatOverviewCard.tsx
 import React from "react";
 import { View, Text } from "react-native";
-import { Icon, IconName } from "../ui/Icon";
-import { THEME_COLORS } from "../../constants/theme";
+import { ProfileStats } from "../../types/profile";
+import { Icon } from "../ui/Icon";
 
 interface StatOverviewCardProps {
-  totalExp: number;
-  monsterDikalahkan: number;
-  akurasi: number;
-  bossDikalahkan: number;
+  stats: ProfileStats | null;
 }
 
-interface StatItem {
-  id: string;
-  label: string;
-  value: string | number;
-  icon: IconName;
-  color: string;
-  bgColor: string;
-}
+export const StatOverviewCard: React.FC<StatOverviewCardProps> = ({ stats }) => {
+  const totalExp = stats?.total_exp ?? 0;
+  const monsterKalah = stats?.monster_dikalahkan ?? 0;
+  const bossKalah = stats?.boss_dikalahkan ?? 0;
+  const akurasi = stats?.akurasi ?? 0;
+  const jumlahBenar = stats?.jumlah_benar ?? 0;
+  const totalSoal = stats?.jumlah_jawaban ?? 0;
 
-export const StatOverviewCard: React.FC<StatOverviewCardProps> = ({
-  totalExp,
-  monsterDikalahkan,
-  akurasi,
-  bossDikalahkan,
-}) => {
-  const stats: StatItem[] = [
+  const statItems = [
     {
       id: "exp",
-      label: "Total EXP",
-      value: totalExp.toLocaleString(),
-      icon: "StarIcon",
-      color: "#FFD700",
-      bgColor: "rgba(255, 215, 0, 0.12)",
+      title: "Total EXP",
+      value: totalExp.toLocaleString("id-ID"),
+      subtitle: `Level ${stats?.level ?? 1}`,
+      icon: "SparklesIcon" as const,
+      iconColor: "#eab308", // Gold / EXP
+      bgIcon: "bg-amber-500/10",
+      borderColor: "border-amber-500/20",
     },
     {
       id: "monster",
-      label: "Monster Gugur",
-      value: monsterDikalahkan,
-      icon: "FireIcon",
-      color: "#F97316",
-      bgColor: "rgba(249, 115, 22, 0.12)",
+      title: "Monster Kalah",
+      value: monsterKalah.toLocaleString("id-ID"),
+      subtitle: "Musuh Biasa",
+      icon: "ShieldExclamationIcon" as const,
+      iconColor: "#ef4444", // Red / HP
+      bgIcon: "bg-red-500/10",
+      borderColor: "border-red-500/20",
     },
     {
       id: "akurasi",
-      label: "Akurasi Jawaban",
+      title: "Akurasi Soal",
       value: `${akurasi}%`,
-      icon: "AcademicCapIcon",
-      color: "#22C55E",
-      bgColor: "rgba(34, 197, 94, 0.12)",
+      subtitle: `${jumlahBenar}/${totalSoal} Soal Benar`,
+      icon: "AcademicCapIcon" as const,
+      iconColor: "#22c55e", // Green / Success
+      bgIcon: "bg-green-500/10",
+      borderColor: "border-green-500/20",
     },
     {
       id: "boss",
-      label: "Boss Ditaklukkan",
-      value: bossDikalahkan,
-      icon: "TrophyIcon",
-      color: "#A855F7",
-      bgColor: "rgba(168, 85, 247, 0.12)",
+      title: "Boss Ditaklukkan",
+      value: bossKalah.toLocaleString("id-ID"),
+      subtitle: "Penguasa Lantai",
+      icon: "TrophyIcon" as const,
+      iconColor: "#a855f7", // Purple / Boss
+      bgIcon: "bg-purple-500/10",
+      borderColor: "border-purple-500/20",
     },
   ];
 
   return (
     <View className="mb-6">
-      <Text className="text-text font-bold text-base mb-3 tracking-wide">
-        Statistik Petualangan
-      </Text>
+      <View className="flex-row items-center justify-between mb-3 px-1">
+        <Text className="text-text font-bold text-lg">Statistik Petualangan</Text>
+        <Text className="text-subtext text-xs">Pencapaian Belajar</Text>
+      </View>
 
+      {/* 2x2 Grid Layout */}
       <View className="flex-row flex-wrap justify-between">
-        {stats.map((stat) => (
+        {statItems.map((item) => (
           <View
-            key={stat.id}
-            className="w-[48%] mb-3 bg-surface-card border border-border-gold/50 rounded-2xl p-4 shadow-sm"
+            key={item.id}
+            className={`w-[48%] bg-surface border ${item.borderColor} p-4 rounded-2xl mb-3.5 shadow-sm`}
           >
             <View className="flex-row items-center justify-between mb-2">
-              <View
-                className="w-10 h-10 rounded-xl items-center justify-center border border-border-gold/30"
-                style={{ backgroundColor: stat.bgColor }}
-              >
-                <Icon name={stat.icon} variant="solid" size={22} color={stat.color} />
+              <View className={`w-9 h-9 rounded-xl ${item.bgIcon} items-center justify-center`}>
+                <Icon name={item.icon} variant="solid" size={20} color={item.iconColor} />
               </View>
+              <Text className="text-subtext text-[11px] font-medium">{item.title}</Text>
             </View>
 
-            <Text className="text-text font-extrabold text-xl tracking-tight">
-              {stat.value}
+            <Text className="text-text font-extrabold text-2xl tracking-tight">
+              {item.value}
             </Text>
-            <Text className="text-subtext font-medium text-xs mt-0.5">
-              {stat.label}
+
+            <Text className="text-subtext text-xs mt-1" numberOfLines={1}>
+              {item.subtitle}
             </Text>
           </View>
         ))}

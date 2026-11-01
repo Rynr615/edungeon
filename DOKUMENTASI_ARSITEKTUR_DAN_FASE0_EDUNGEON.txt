@@ -521,35 +521,34 @@ D. Git Branch Kerja: `git checkout -b fitur-profile`
    - Folder masing-masing (`components/home/`, `components/challenge/`, `components/profile/`) berdiri sendiri secara independen sehingga tidak akan terjadi konflik kodingan antar-anggota!
 
 ================================================================================
-7. LAPORAN IMPLEMENTASI RESMI ANGGOTA 3 (SELESAI 100%)
+7. LAPORAN IMPLEMENTASI RESMI ANGGOTA 3 (TAHAP 1, 2, 3 SELESAI 100%)
 ================================================================================
 Peran: 👤 ANGGOTA 3 - Lead Halaman Profile, Leaderboard, Badge & Settings
 Status: SELESAI & TERVERIFIKASI PENUH (Branch: `fitur-profile`)
+Acuan Desain: PAGE WIREFRAME Figma (node-id=35-2044)
 
-A. Deliverables Tahap 1 (Design System & Theme Tokens):
-   - `mobile/tailwind.config.js`: Warna tema Dark Fantasy RPG (#140D07, #23170E, #D4A373, #FAEDCD).
-   - `mobile/constants/theme.ts`: Token tema TypeScript THEME_COLORS (surface, gold, badge tiers).
-   - `mobile/components/ui/Card.tsx`: Varian 'gold' dan 'card' dengan aksen border kuningan.
+A. Deliverables Tahap 1 (Type Definitions & Context Setup):
+   - `mobile/types/profile.ts`: Definisi kuat TypeScript untuk UserProfile, ProfileStats, EditProfilePayload, AudioSettingsPayload, BadgeItem (15 Badges), CardCollectionItem (12 Cards), LeaderboardUser, ProfileDataResponse.
+   - `mobile/context/AuthContext.tsx`: Terintegrasi dengan UserProfile resmi dan method updateLocalProfile.
+   - Typecheck Mobile: 0 Errors.
 
-B. Deliverables Tahap 2 (Backend Endpoint & Database Seeding):
-   - `server/src/controllers/userController.ts`: 7 Controller terverifikasi (getProfile, submitOnboarding, updateProfile, getLeaderboard, getUserBadges, getUserCardCollection, updateSettings).
-   - `server/src/routes/userRoutes.ts`: Routing terproteksi middleware JWT.
-   - `server/src/scripts/seedBadges.ts`: Seeding 15 badge (10 klasik + 5 usulan baru) sukses ke Firestore.
-   - Pengecekan TypeScript Server: 0 Errors (Lolos 100%).
+B. Deliverables Tahap 2 (Modular Components Wireframe Sesuai Figma):
+   - `mobile/components/profile/ProfileHeader.tsx`: Avatar ring, EXP level progress bar, nama, @username, kelas, tombol quick action Settings & Edit Profile.
+   - `mobile/components/profile/StatOverviewCard.tsx`: Grid 2x2 statistik petualangan (Total EXP, Monster Kalah, Akurasi %, Boss Ditaklukkan).
+   - `mobile/components/profile/CardCollectionGrid.tsx`: Grid 12 kartu power-up dungeon (K01-K12) dengan status terkunci/terbuka + modal pop-up detail efek.
+   - `mobile/components/profile/BadgeGallery.tsx`: Galeri 15 lencana prestasi (B01-B15) dengan counter x/15 + modal pop-up syarat perolehan.
+   - `mobile/components/profile/EditProfileModal.tsx`: Modal edit profil dengan selector role avatar hero, input nama lengkap, username read-only, dan pilihan kelas (X-1 s/d X-10).
+   - `mobile/components/profile/AudioSettingsModal.tsx`: Modal pengaturan suara dengan switch toggle BGM/SFX, visual volume master bar, preset tombol 20%-100%.
+   - `mobile/components/profile/LeaderboardModal.tsx`: Modal papan peringkat Top 10 se-sekolah, piala #1-#3, highlight baris siswa aktif, dan filter tab kelas.
+   - `mobile/components/profile/index.ts`: Central export file untuk seluruh komponen modular.
 
-C. Deliverables Tahap 3 (Frontend Modular Sesuai Figma node 35-2044):
-   - `mobile/types/profile.ts`: Tipe data lengkap Profile, Badges, Cards, Settings, Leaderboard.
-   - `mobile/services/profileService.ts`: Client API authenticated fetch dengan dynamic IP.
-   - `mobile/components/profile/ProfileHeader.tsx`: Avatar cincin emas + badge level + aksi cepat.
-   - `mobile/components/profile/LevelProgressBar.tsx`: Bar level & EXP interaktif.
-   - `mobile/components/profile/StatOverviewCard.tsx`: Grid 2x2 statistik petualangan.
-   - `mobile/components/profile/CardCollectionGrid.tsx`: Grid 12 kartu buff + modal detail kartu.
-   - `mobile/components/profile/BadgeGallery.tsx`: Galeri 15 badge berfilter + modal detail badge.
-   - `mobile/components/profile/EditProfileModal.tsx`: Modal update nama, kelas, dan avatar class.
-   - `mobile/components/profile/AudioSettingsModal.tsx`: Modal toggle musik dan volume RPG.
-   - `mobile/components/profile/LeaderboardModal.tsx`: Modal top 10 pahlawan + peringkat siswa aktif.
-   - `mobile/app/(tabs)/profile.tsx`: Layar profil komprehensif dengan pull-to-refresh & logout.
-   - Pengecekan TypeScript Mobile: 0 Errors (Lolos 100%).
+C. Deliverables Tahap 3 (API Service Layer & Full Screen Assembly):
+   - `mobile/services/profileService.ts`: Client API authenticated fetch dengan dynamic IP, kalkulasi statistik turunan, update profile, update audio settings, get leaderboard, get badges, get card collection, dan parallel getFullProfileData.
+   - `mobile/app/(tabs)/profile.tsx`: Layar profil utama yang mengintegrasikan seluruh komponen modular, modal state management, pull-to-refresh, dan penanganan logout.
+   - `server/src/controllers/userController.ts`: Controller backend teruji untuk update profile, settings, leaderboard, badges, dan cards.
+   - `server/src/scripts/seedBadges.ts`: 15 badge berhasil di-seed ke Firestore tb_badge.
+   - Pengecekan TypeScript (Mobile & Server): 0 Errors (Lolos 100%).
+
 
 ================================================================================
 DOKUMENTASI DAN PEMBAGIAN TUGAS RESMI INI SIAP DIGUNAKAN OLEH SELURUH TIM.

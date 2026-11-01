@@ -1,114 +1,113 @@
 // mobile/components/profile/ProfileHeader.tsx
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { UserProfile, ProfileStats } from "../../types/profile";
 import { Icon } from "../ui/Icon";
-import { THEME_COLORS } from "../../constants/theme";
-import { UserProfileData } from "../../types/profile";
 
 interface ProfileHeaderProps {
-  profile: UserProfileData | null;
-  onOpenEdit: () => void;
-  onOpenSettings: () => void;
-  onOpenLeaderboard: () => void;
+  user: UserProfile | null;
+  stats: ProfileStats | null;
+  onEditPress: () => void;
+  onSettingsPress: () => void;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
-  profile,
-  onOpenEdit,
-  onOpenSettings,
-  onOpenLeaderboard,
+  user,
+  stats,
+  onEditPress,
+  onSettingsPress,
 }) => {
-  const avatarName = (profile?.avatar || "knight").toLowerCase();
+  const level = stats?.level ?? Math.floor((user?.total_exp || 0) / 100) + 1;
+  const expCurrent = stats?.exp_saat_ini ?? (user?.total_exp || 0) % 100;
+  const expTarget = stats?.exp_target_level ?? 100;
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, stats?.persentase_level ?? Math.round((expCurrent / expTarget) * 100))
+  );
 
-  // Memilih icon dan warna berdasarkan avatar class
-  const getAvatarConfig = () => {
-    switch (avatarName) {
-      case "mage":
-        return { icon: "SparklesIcon" as const, color: "#A855F7", label: "Mage" };
-      case "archer":
-        return { icon: "BoltIcon" as const, color: "#10B981", label: "Archer" };
+  const getRoleIcon = () => {
+    switch (user?.avatar_class) {
       case "knight":
+        return <Icon name="ShieldCheckIcon" variant="solid" size={36} color="#3b82f6" />;
+      case "mage":
+        return <Icon name="SparklesIcon" variant="solid" size={36} color="#06b6d4" />;
+      case "archer":
+        return <Icon name="BoltIcon" variant="solid" size={36} color="#10b981" />;
       default:
-        return { icon: "ShieldCheckIcon" as const, color: THEME_COLORS.gold, label: "Knight" };
+        return <Icon name="UserIcon" variant="solid" size={36} color="#f59e0b" />;
     }
   };
 
-  const avatarConfig = getAvatarConfig();
-  const level = profile?.level || 1;
-  const kelas = profile?.kelas || "Kelas X";
-
   return (
-    <View className="mb-5">
-      {/* Tombol Aksi Atas (Leaderboard, Edit, Settings) */}
-      <View className="flex-row justify-between items-center mb-4">
-        <TouchableOpacity
-          onPress={onOpenLeaderboard}
-          activeOpacity={0.8}
-          className="flex-row items-center bg-surface-card border border-border-gold/60 px-3 py-2 rounded-xl"
-        >
-          <Icon name="TrophyIcon" variant="solid" size={18} color="#FFD700" />
-          <Text className="text-gold font-bold text-xs ml-1.5">Leaderboard</Text>
-        </TouchableOpacity>
+    <View className="bg-surface border border-surface-light rounded-3xl p-5 mb-5 shadow-sm">
+      {/* Top Action Buttons (Settings & Edit Profile) */}
+      <View className="flex-row items-center justify-between mb-4">
+        <View className="bg-surface-light/40 px-3 py-1 rounded-full border border-surface-light">
+          <Text className="text-subtext text-xs font-semibold uppercase tracking-wider">
+            Akun Siswa
+          </Text>
+        </View>
 
-        <View className="flex-row items-center gap-2">
+        <View className="flex-row items-center space-x-2">
+          {/* Tombol Pengaturan Suara */}
           <TouchableOpacity
-            onPress={onOpenEdit}
-            activeOpacity={0.8}
-            className="w-10 h-10 rounded-xl bg-surface-card border border-border-gold/60 items-center justify-center"
+            onPress={onSettingsPress}
+            activeOpacity={0.7}
+            className="w-10 h-10 rounded-xl bg-surface-light/60 border border-surface-light items-center justify-center mr-2"
           >
-            <Icon name="PencilSquareIcon" variant="outline" size={20} color={THEME_COLORS.text} />
+            <Icon name="Cog6ToothIcon" variant="outline" size={20} color="#f8fafc" />
           </TouchableOpacity>
 
+          {/* Tombol Edit Profil */}
           <TouchableOpacity
-            onPress={onOpenSettings}
-            activeOpacity={0.8}
-            className="w-10 h-10 rounded-xl bg-surface-card border border-border-gold/60 items-center justify-center"
+            onPress={onEditPress}
+            activeOpacity={0.7}
+            className="w-10 h-10 rounded-xl bg-surface-light/60 border border-surface-light items-center justify-center"
           >
-            <Icon name="Cog6ToothIcon" variant="outline" size={20} color={THEME_COLORS.text} />
+            <Icon name="PencilSquareIcon" variant="outline" size={20} color="#f8fafc" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Identitas Hero (Avatar dengan Golden Ring & Nama) */}
-      <View className="items-center">
-        <View className="relative mb-3">
-          {/* Cincin Emas Avatar */}
-          <View className="w-24 h-24 rounded-full bg-surface-card items-center justify-center border-2 border-gold shadow-lg shadow-black/60">
-            <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center border border-border-gold/40">
-              <Icon
-                name={avatarConfig.icon}
-                variant="solid"
-                size={44}
-                color={avatarConfig.color}
-              />
-            </View>
-          </View>
-
-          {/* Badge Level Lingkaran Kecil di Pojok Bawah */}
-          <View className="absolute bottom-0 right-0 bg-primary border-2 border-surface px-2 py-0.5 rounded-full items-center justify-center shadow-md">
-            <Text className="text-surface font-extrabold text-[10px]">
-              LV.{level}
-            </Text>
-          </View>
+      {/* Identitas Pengguna & Avatar */}
+      <View className="items-center mb-5">
+        <View className="w-22 h-22 w-20 h-20 rounded-full bg-background border-2 border-exp/80 items-center justify-center mb-3 shadow-md">
+          {getRoleIcon()}
         </View>
 
-        <Text className="text-text font-bold text-2xl text-center tracking-wide">
-          {profile?.nama || "Pahlawan Edungeon"}
+        <Text className="text-text font-bold text-xl text-center">
+          {user?.nama || "Pahlawan Siswa"}
         </Text>
-        <Text className="text-subtext text-xs text-center mt-0.5">
-          @{profile?.username || "hero"}
+        <Text className="text-subtext text-xs mt-0.5">
+          @{user?.username || "pahlawan"} • {user?.kelas || "Kelas X"}
         </Text>
+        {user?.avatar_class ? (
+          <View className="mt-2 bg-primary/20 px-3 py-0.5 rounded-full border border-primary/40">
+            <Text className="text-primary text-[11px] font-bold uppercase">
+              Role: {user.avatar_class}
+            </Text>
+          </View>
+        ) : null}
+      </View>
 
-        {/* Kapsul Status Class & Level */}
-        <View className="flex-row items-center mt-3 bg-surface-card border border-border-gold/40 px-3.5 py-1.5 rounded-full">
-          <View className="w-2 h-2 rounded-full bg-gold mr-2" />
-          <Text className="text-gold font-semibold text-xs">
-            Lvl {level} • {avatarConfig.label}
+      {/* EXP & Level Bar Progress */}
+      <View className="bg-background/80 border border-surface-light/50 p-3.5 rounded-2xl">
+        <View className="flex-row justify-between items-center mb-1.5">
+          <View className="flex-row items-center">
+            <Icon name="SparklesIcon" variant="solid" size={14} color="#eab308" />
+            <Text className="text-exp font-bold text-xs ml-1">Level {level}</Text>
+          </View>
+          <Text className="text-subtext text-xs font-medium">
+            {expCurrent} / {expTarget} EXP
           </Text>
-          <Text className="text-subtext text-xs mx-1.5">•</Text>
-          <Text className="text-text font-medium text-xs">
-            {kelas}
-          </Text>
+        </View>
+
+        {/* Progress Bar Horizontal */}
+        <View className="w-full bg-surface-light h-2.5 rounded-full overflow-hidden">
+          <View
+            className="bg-exp h-full rounded-full"
+            style={{ width: `${progressPercent}%` }}
+          />
         </View>
       </View>
     </View>

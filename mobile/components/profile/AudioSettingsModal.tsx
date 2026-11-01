@@ -4,156 +4,178 @@ import {
   View,
   Text,
   Modal,
-  TouchableOpacity,
   Switch,
+  TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from "react-native";
+import { AudioSettingsPayload } from "../../types/profile";
 import { Icon } from "../ui/Icon";
-import { THEME_COLORS } from "../../constants/theme";
-import { UserProfileData } from "../../types/profile";
-import { profileService } from "../../services/profileService";
 
 interface AudioSettingsModalProps {
   visible: boolean;
-  profile: UserProfileData | null;
+  audioAktif: boolean;
+  volumeAudio: number; // 0.0 - 1.0
   onClose: () => void;
-  onSuccess: (audioAktif: boolean, volume: number) => void;
+  onSave: (payload: AudioSettingsPayload) => Promise<boolean | void>;
+  loading?: boolean;
 }
 
-const VOLUME_PRESETS = [
-  { label: "Mute", value: 0.0 },
-  { label: "25%", value: 0.25 },
-  { label: "50%", value: 0.5 },
-  { label: "75%", value: 0.75 },
-  { label: "100%", value: 1.0 },
-];
+const VOLUME_PRESETS = [0.2, 0.4, 0.6, 0.8, 1.0];
 
 export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
   visible,
-  profile,
+  audioAktif = true,
+  volumeAudio = 0.8,
   onClose,
-  onSuccess,
+  onSave,
+  loading = false,
 }) => {
-  const [audioAktif, setAudioAktif] = useState(profile?.audio_aktif !== false);
-  const [volume, setVolume] = useState(
-    typeof profile?.volume_audio === "number" ? profile.volume_audio : 1.0
-  );
-  const [saving, setSaving] = useState(false);
+  const [enabled, setEnabled] = useState(audioAktif);
+  const [volume, setVolume] = useState(volumeAudio);
 
   useEffect(() => {
-    if (profile) {
-      setAudioAktif(profile.audio_aktif !== false);
-      setVolume(typeof profile.volume_audio === "number" ? profile.volume_audio : 1.0);
-    }
-  }, [profile, visible]);
+    setEnabled(audioAktif);
+    setVolume(volumeAudio);
+  }, [audioAktif, volumeAudio, visible]);
 
   const handleSave = async () => {
     try {
-      setSaving(true);
-      await profileService.updateSettings({
-        audio_aktif: audioAktif,
-        volume_audio: audioAktif ? volume : 0,
+      await onSave({
+        audio_aktif: enabled,
+        volume_audio: enabled ? volume : 0,
       });
-      onSuccess(audioAktif, volume);
       onClose();
-      Alert.alert("Pengaturan Disimpan", "Preferensi audio Anda berhasil diperbarui.");
-    } catch (err: any) {
-      Alert.alert("Gagal", err.message || "Gagal menyimpan pengaturan audio.");
-    } finally {
-      setSaving(false);
+    } catch {
+      // error handled in caller
     }
   };
+
+  const volumePercent = Math.round(volume * 100);
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-black/80 justify-end">
-        <View className="bg-surface border-t-2 border-gold rounded-t-3xl p-6 shadow-2xl">
-          {/* Header Modal */}
-          <View className="flex-row justify-between items-center mb-5">
+      <View className="flex-1 bg-black/75 justify-center items-center p-5">
+        <View className="w-full max-w-sm bg-surface border border-surface-light rounded-3xl p-6 shadow-2xl">
+          {/* Header */}
+          <View className="flex-row items-center justify-between pb-4 border-b border-surface-light/60 mb-5">
             <View className="flex-row items-center">
-              <Icon name="SpeakerWaveIcon" variant="solid" size={22} color={THEME_COLORS.gold} />
-              <Text className="text-text font-bold text-lg ml-2">Pengaturan Audio</Text>
+              <View className="w-10 h-10 rounded-xl bg-primary/20 items-center justify-center mr-3">
+                <Icon name="SpeakerWaveIcon" variant="solid" size={22} color="#3b82f6" />
+              </View>
+              <View>
+                <Text className="text-text font-bold text-lg">Pengaturan Suara</Text>
+                <Text className="text-subtext text-xs">Audio BGM & SFX Dungeon</Text>
+              </View>
             </View>
-            <TouchableOpacity onPress={onClose} className="p-1">
-              <Icon name="XMarkIcon" variant="outline" size={24} color={THEME_COLORS.subtext} />
+            <TouchableOpacity
+              onPress={onClose}
+              disabled={loading}
+              className="w-8 h-8 rounded-full bg-surface-light/60 items-center justify-center"
+            >
+              <Icon name="XMarkIcon" variant="outline" size={18} color="#94a3b8" />
             </TouchableOpacity>
           </View>
 
-          {/* Toggle Efek Suara & Musik */}
-          <View className="flex-row justify-between items-center bg-surface-card border border-border-gold/50 rounded-2xl p-4 mb-4">
+          {/* Toggle Switch Audio Aktif */}
+          <View className="bg-background/80 p-4 rounded-2xl border border-surface-light/50 flex-row items-center justify-between mb-5">
             <View className="flex-1 mr-3">
-              <Text className="text-text font-bold text-sm">Musik & Suara Latar</Text>
+              <Text className="text-text font-semibold text-sm">
+                Efek Suara & Musik
+              </Text>
               <Text className="text-subtext text-xs mt-0.5">
-                Aktifkan musik latar bertema RPG dan efek sound battle
+                Nyalakan musik latar & SFX
               </Text>
             </View>
             <Switch
-              value={audioAktif}
-              onValueChange={setAudioAktif}
-              trackColor={{ false: THEME_COLORS.surfaceLight, true: THEME_COLORS.gold }}
-              thumbColor={audioAktif ? THEME_COLORS.surface : "#f4f3f4"}
+              value={enabled}
+              onValueChange={setEnabled}
+              trackColor={{ false: "#334155", true: "#2563eb" }}
+              thumbColor={enabled ? "#ffffff" : "#94a3b8"}
             />
           </View>
 
-          {/* Volume Preset */}
-          {audioAktif && (
-            <View className="bg-surface-card border border-border-gold/50 rounded-2xl p-4 mb-6">
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-text font-bold text-sm">Tingkat Volume</Text>
-                <Text className="text-gold font-bold text-xs">{Math.round(volume * 100)}%</Text>
-              </View>
+          {/* Volume Stepper & Presets */}
+          <View className="mb-6 opacity-100">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-subtext text-xs font-bold uppercase tracking-wider">
+                Volume Master
+              </Text>
+              <Text className="text-exp font-bold text-sm">
+                {enabled ? `${volumePercent}%` : "Dibisukan (Mute)"}
+              </Text>
+            </View>
 
-              <View className="flex-row justify-between">
-                {VOLUME_PRESETS.map((p) => {
-                  const isSelected = Math.abs(volume - p.value) < 0.05;
-                  return (
-                    <TouchableOpacity
-                      key={p.label}
-                      onPress={() => setVolume(p.value)}
-                      className={`px-3 py-2 rounded-xl border ${
-                        isSelected
-                          ? "bg-primary border-gold"
-                          : "bg-surface-light border-border/40"
+            {/* Visual Volume Bar */}
+            <View className="w-full bg-surface-light h-3 rounded-full overflow-hidden mb-3">
+              <View
+                className="bg-primary h-full rounded-full"
+                style={{ width: enabled ? `${volumePercent}%` : "0%" }}
+              />
+            </View>
+
+            {/* Presets Button Row */}
+            <View className="flex-row justify-between">
+              {VOLUME_PRESETS.map((val) => {
+                const isSelected = enabled && Math.abs(volume - val) < 0.05;
+                const percent = Math.round(val * 100);
+
+                return (
+                  <TouchableOpacity
+                    key={val}
+                    disabled={!enabled}
+                    onPress={() => setVolume(val)}
+                    activeOpacity={0.7}
+                    className={`px-2.5 py-1.5 rounded-lg border ${
+                      isSelected
+                        ? "bg-primary border-primary"
+                        : "bg-background border-surface-light/60"
+                    } ${!enabled ? "opacity-40" : ""}`}
+                  >
+                    <Text
+                      className={`text-[11px] font-bold ${
+                        isSelected ? "text-white" : "text-subtext"
                       }`}
                     >
-                      <Text
-                        className={`font-bold text-xs ${
-                          isSelected ? "text-surface" : "text-subtext"
-                        }`}
-                      >
-                        {p.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+                      {percent}%
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
-          )}
+          </View>
 
-          {/* Tombol Simpan */}
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={saving}
-            activeOpacity={0.8}
-            className="bg-primary py-4 rounded-xl items-center shadow-lg shadow-primary/30 flex-row justify-center"
-          >
-            {saving ? (
-              <ActivityIndicator color={THEME_COLORS.surface} size="small" />
-            ) : (
-              <>
-                <Icon name="CheckIcon" variant="solid" size={20} color={THEME_COLORS.surface} />
-                <Text className="text-surface font-extrabold text-base ml-2">
-                  Terapkan Pengaturan
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
+          {/* Action Buttons */}
+          <View className="flex-row space-x-3">
+            <TouchableOpacity
+              onPress={onClose}
+              disabled={loading}
+              activeOpacity={0.7}
+              className="flex-1 bg-surface-light/60 py-3.5 rounded-xl items-center mr-2 border border-surface-light"
+            >
+              <Text className="text-subtext font-bold text-base">Batal</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={loading}
+              activeOpacity={0.8}
+              className="flex-1 bg-primary py-3.5 rounded-xl items-center flex-row justify-center ml-2 shadow-md"
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" size="small" />
+              ) : (
+                <>
+                  <Icon name="CheckIcon" variant="solid" size={18} color="#ffffff" />
+                  <Text className="text-white font-bold text-base ml-1.5">Terapkan</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>

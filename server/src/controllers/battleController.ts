@@ -6,6 +6,11 @@ import { AuthRequest } from "../middleware/auth.js";
 import { BattleRun, newRun, resolveAnswer, applyCard } from "../game/engine.js";
 import { CARDS } from "../game/cards.js";
 import { OPTIONS, Option, HeroClass } from "../game/constants.js";
+import {
+  evaluateRunBadges,
+  evaluateCumulativeBadges,
+  updateUserBattleStats,
+} from "../game/badges.js";
 
 class BattleError extends Error {
   constructor(
@@ -286,9 +291,30 @@ export const submitAnswer = wrap(async (req, res) => {
         { id_user: uid, id_modul: run.moduleId, modul_tamat: true },
         { merge: true },
       );
-    return { run: publicRun(run), result };
+    const elapsedMs = now - snapshot.data()!.battle.question.startedAt;
+    return { run: publicRun(run), result, answeredStage, elapsedMs };
   });
-  res.json({ status: "success", data });
+
+  // Evaluasi Badge dan Perbarui Statistik Siswa (Tugas Anggota 3)
+  evaluateRunBadges(uid, data.run as any, data.result, data.elapsedMs || 0).catch((e) =>
+    console.error("[BATTLE CONTROLLER] Error evaluateRunBadges:", e)
+  );
+
+  if (data.result.correct) {
+    updateUserBattleStats(uid, {
+      exp: 10,
+      correct: 1,
+      answers: 1,
+      kills: data.run.status === "victory" || data.answeredStage === 5 || data.answeredStage === 10 ? 0 : 1,
+      bosses: data.answeredStage === 5 || data.answeredStage === 10 ? 1 : 0,
+    }).catch((e) => console.error("[BATTLE CONTROLLER] Error update stats:", e));
+  } else {
+    updateUserBattleStats(uid, { answers: 1 }).catch((e) =>
+      console.error("[BATTLE CONTROLLER] Error update stats:", e)
+    );
+  }
+
+  res.json({ status: "success", data: { run: data.run, result: data.result } });
 });
 export const useSkill = wrap(async (req, res) => {
   const uid = req.user!.uid;
@@ -376,5 +402,11 @@ export const selectCard = wrap(async (req, res) => {
     );
     return run;
   });
+
+  // Evaluasi Badge Koleksi Kartu Siswa (Tugas Anggota 3)
+  evaluateCumulativeBadges(uid).catch((e) =>
+    console.error("[BATTLE CONTROLLER] Error evaluateCumulativeBadges:", e)
+  );
+
   res.json({ status: "success", data: publicRun(run) });
 });

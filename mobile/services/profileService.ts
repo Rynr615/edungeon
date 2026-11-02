@@ -65,6 +65,13 @@ export const profileService = {
   },
 
   /**
+   * Alias getProfileStats sesuai dokumen arsitektur
+   */
+  getProfileStats: (): Promise<UserProfile> => {
+    return request<UserProfile>("/profile");
+  },
+
+  /**
    * Memperbarui informasi profil (nama, nama panggilan, kelas, no_hp, avatar)
    */
   updateProfile: (dto: UpdateProfileDTO): Promise<UserProfile> => {
@@ -85,6 +92,13 @@ export const profileService = {
    * Mengambil daftar 15 badge (master badge + status pencapaian user)
    */
   getUserBadges: (): Promise<BadgeItem[]> => {
+    return request<BadgeItem[]>("/badges");
+  },
+
+  /**
+   * Alias getBadges sesuai dokumen arsitektur
+   */
+  getBadges: (): Promise<BadgeItem[]> => {
     return request<BadgeItem[]>("/badges");
   },
 

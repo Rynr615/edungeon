@@ -5,3 +5,6 @@ export * from "./KoleksiCard";
 export * from "./CardCollectionGrid";
 export * from "./BadgeGallery";
 export * from "./ProfileMenuActions";
+export * from "./LeaderboardTable";
+export * from "./AudioSettingsModal";
+export * from "./EditProfileModal";

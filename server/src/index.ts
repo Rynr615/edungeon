@@ -8,6 +8,7 @@ dotenv.config();
 
 import "./config/firebase.js";
 import userRoutes from "./routes/userRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 import battleRoutes from "./routes/battleRoutes.js";
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/api/battle", battleRoutes);
 
 // Endpoint Health Check

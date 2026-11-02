@@ -16,6 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../../context/AuthContext";
 import { profileService } from "../../services/profileService";
 import { Icon } from "../../components/ui/Icon";
+import { EditProfileModal } from "../../components/profile/EditProfileModal";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -309,66 +310,26 @@ export default function EditProfileScreen() {
       </ScrollView>
 
       {/* MODAL DIALOG UBAH INFORMASI PRIBADI */}
-      <Modal visible={isEditing} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-6 shadow-2xl">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="font-bold text-lg text-gray-900">
-                Ubah Informasi Pribadi
-              </Text>
-              <TouchableOpacity onPress={() => setIsEditing(false)}>
-                <Icon name="XMarkIcon" variant="outline" size={22} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Input Nama */}
-            <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Lengkap</Text>
-            <TextInput
-              value={nama}
-              onChangeText={setNama}
-              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
-            />
-
-            {/* Input Nama Panggilan */}
-            <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Panggilan</Text>
-            <TextInput
-              value={namaPanggilan}
-              onChangeText={setNamaPanggilan}
-              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
-            />
-
-            {/* Input Kelas */}
-            <Text className="text-gray-700 text-xs font-semibold mb-1">Kelas</Text>
-            <TextInput
-              value={kelas}
-              onChangeText={setKelas}
-              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-3 text-gray-900"
-            />
-
-            {/* Input No HP */}
-            <Text className="text-gray-700 text-xs font-semibold mb-1">No. HP / WhatsApp</Text>
-            <TextInput
-              value={noHp}
-              onChangeText={setNoHp}
-              keyboardType="phone-pad"
-              className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-2.5 font-mono text-sm mb-6 text-gray-900"
-            />
-
-            {/* Save Button */}
-            <TouchableOpacity
-              onPress={handleSave}
-              disabled={saving}
-              className="bg-gray-900 py-3.5 rounded-xl items-center mb-4"
-            >
-              {saving ? (
-                <ActivityIndicator color="#ffffff" />
-              ) : (
-                <Text className="text-white font-bold text-base">Simpan Perubahan</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <EditProfileModal
+        visible={isEditing}
+        initialNama={nama}
+        initialNamaPanggilan={namaPanggilan}
+        initialKelas={kelas}
+        initialNoHp={noHp}
+        onClose={() => setIsEditing(false)}
+        onSave={async (updated) => {
+          await profileService.updateProfile({
+            ...updated,
+            avatar,
+          });
+          setNama(updated.nama);
+          if (updated.nama_panggilan) setNamaPanggilan(updated.nama_panggilan);
+          if (updated.kelas) setKelas(updated.kelas);
+          if (updated.no_hp) setNoHp(updated.no_hp);
+          await fetchProfile();
+          Alert.alert("Berhasil", "Informasi pribadi berhasil diperbarui!");
+        }}
+      />
     </View>
   );
 }

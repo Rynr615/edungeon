@@ -33,74 +33,74 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#3b82f6"
+            tintColor="#0284c7"
           />
         ) : undefined
       }
     >
       {/* Top 3 Podium */}
-      <View className="flex-row justify-center items-end my-6 px-2">
+      <View className="flex-row justify-center items-end my-5 px-1">
         {/* Rank 2 (Silver) */}
         <View className="items-center flex-1">
-          <View className="w-14 h-14 rounded-full border-2 border-slate-300 bg-slate-400/20 items-center justify-center mb-1">
-            <Icon name="ShieldCheckIcon" variant="solid" size={28} color="#cbd5e1" />
+          <View className="w-13 h-13 rounded-full border-2 border-slate-300 bg-slate-100 items-center justify-center mb-1 shadow-xs">
+            <Icon name="ShieldCheckIcon" variant="solid" size={24} color="#64748b" />
           </View>
-          <View className="bg-slate-300 px-2 py-0.5 rounded-full mb-1">
-            <Text className="text-slate-900 font-black text-[10px]">#2</Text>
+          <View className="bg-slate-200 px-2 py-0.5 rounded-full mb-1 border border-slate-300">
+            <Text className="text-slate-800 font-mono font-bold text-[10px]">#2</Text>
           </View>
-          <Text className="text-text font-bold text-xs text-center" numberOfLines={1}>
+          <Text className="text-gray-900 font-mono font-bold text-xs text-center" numberOfLines={1}>
             {top2 ? top2.nama : "Kosong"}
           </Text>
-          <Text className="text-amber-400 font-bold text-[11px]">
+          <Text className="text-amber-700 font-mono font-bold text-[11px]">
             {top2 ? `${top2.total_exp} EXP` : "-"}
           </Text>
-          <View className="w-full h-20 bg-slate-800/80 rounded-t-xl mt-2 border-t-2 border-slate-400" />
+          <View className="w-full h-18 bg-slate-100 rounded-t-xl mt-2 border-t-2 border-slate-300 border-x border-slate-200" />
         </View>
 
         {/* Rank 1 (Gold) */}
         <View className="items-center flex-1 mx-2">
-          <Icon name="TrophyIcon" variant="solid" size={24} color="#f59e0b" />
-          <View className="w-18 h-18 rounded-full border-4 border-amber-400 bg-amber-500/20 items-center justify-center mb-1 shadow-lg shadow-amber-500/30">
-            <Icon name="SparklesIcon" variant="solid" size={36} color="#fbbf24" />
+          <Icon name="TrophyIcon" variant="solid" size={24} color="#d97706" />
+          <View className="w-16 h-16 rounded-full border-3 border-amber-400 bg-amber-50 items-center justify-center mb-1 shadow-sm">
+            <Icon name="SparklesIcon" variant="solid" size={32} color="#eab308" />
           </View>
-          <View className="bg-amber-400 px-2.5 py-0.5 rounded-full mb-1">
-            <Text className="text-amber-950 font-black text-xs">JUARA 1</Text>
+          <View className="bg-amber-400 px-2.5 py-0.5 rounded-full mb-1 shadow-xs">
+            <Text className="text-amber-950 font-mono font-bold text-xs">JUARA 1</Text>
           </View>
-          <Text className="text-text font-black text-sm text-center" numberOfLines={1}>
+          <Text className="text-gray-900 font-mono font-bold text-xs text-center" numberOfLines={1}>
             {top1 ? top1.nama : "Pahlawan Terhebat"}
           </Text>
-          <Text className="text-amber-400 font-extrabold text-xs">
+          <Text className="text-amber-700 font-mono font-bold text-xs">
             {top1 ? `${top1.total_exp} EXP` : "-"}
           </Text>
-          <View className="w-full h-28 bg-amber-500/10 rounded-t-xl mt-2 border-t-4 border-amber-400" />
+          <View className="w-full h-26 bg-amber-50 rounded-t-xl mt-2 border-t-4 border-amber-400 border-x border-amber-200" />
         </View>
 
         {/* Rank 3 (Bronze) */}
         <View className="items-center flex-1">
-          <View className="w-14 h-14 rounded-full border-2 border-amber-700 bg-amber-800/20 items-center justify-center mb-1">
-            <Icon name="BoltIcon" variant="solid" size={28} color="#d97706" />
+          <View className="w-13 h-13 rounded-full border-2 border-amber-700/40 bg-amber-100/50 items-center justify-center mb-1 shadow-xs">
+            <Icon name="BoltIcon" variant="solid" size={24} color="#b45309" />
           </View>
-          <View className="bg-amber-700 px-2 py-0.5 rounded-full mb-1">
-            <Text className="text-white font-black text-[10px]">#3</Text>
+          <View className="bg-amber-200 px-2 py-0.5 rounded-full mb-1 border border-amber-300">
+            <Text className="text-amber-900 font-mono font-bold text-[10px]">#3</Text>
           </View>
-          <Text className="text-text font-bold text-xs text-center" numberOfLines={1}>
+          <Text className="text-gray-900 font-mono font-bold text-xs text-center" numberOfLines={1}>
             {top3 ? top3.nama : "Kosong"}
           </Text>
-          <Text className="text-amber-400 font-bold text-[11px]">
+          <Text className="text-amber-700 font-mono font-bold text-[11px]">
             {top3 ? `${top3.total_exp} EXP` : "-"}
           </Text>
-          <View className="w-full h-16 bg-slate-800/80 rounded-t-xl mt-2 border-t-2 border-amber-700" />
+          <View className="w-full h-14 bg-amber-50/60 rounded-t-xl mt-2 border-t-2 border-amber-700/50 border-x border-amber-200" />
         </View>
       </View>
 
-      {/* Rest of Leaderboard (Rank 4 - 10) */}
-      <View className="bg-surface border border-surface-light rounded-3xl p-3 mb-24 shadow-md">
-        <Text className="text-subtext font-bold text-xs px-2 mb-2 uppercase tracking-wider">
+      {/* Rest of Leaderboard (Rank 4 - 10) in Clean Panel */}
+      <View className="bg-[#dde3ea] rounded-2xl p-4 mb-24">
+        <Text className="text-gray-800 font-mono font-bold text-xs mb-3 uppercase tracking-wider">
           Peringkat 4 - 10
         </Text>
 
         {rest.length === 0 && (
-          <Text className="text-slate-500 text-xs text-center py-4">
+          <Text className="text-gray-600 font-mono text-xs text-center py-4">
             Belum ada siswa lain di papan peringkat
           </Text>
         )}
@@ -110,34 +110,38 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
           return (
             <View
               key={user.id_user}
-              className={`flex-row items-center justify-between p-3 rounded-2xl mb-1.5 ${
-                isMe ? "bg-primary/20 border border-primary" : "bg-surface-light/30"
+              className={`flex-row items-center justify-between p-3 rounded-xl mb-2 ${
+                isMe
+                  ? "bg-white border-2 border-sky-400 shadow-xs"
+                  : "bg-white border border-gray-200 shadow-xs"
               }`}
             >
-              <View className="flex-row items-center flex-1">
-                <View className="w-7 h-7 rounded-full bg-slate-800 items-center justify-center mr-3">
-                  <Text className="text-slate-300 font-extrabold text-xs">
+              <View className="flex-row items-center flex-1 mr-2">
+                <View className="w-7 h-7 rounded-full bg-slate-100 items-center justify-center mr-2.5 border border-gray-300">
+                  <Text className="text-gray-700 font-mono font-bold text-xs">
                     #{user.rank}
                   </Text>
                 </View>
                 <View className="flex-1">
                   <Text
-                    className={`font-bold text-sm ${isMe ? "text-blue-400" : "text-text"}`}
+                    className={`font-mono font-bold text-xs ${
+                      isMe ? "text-sky-700" : "text-gray-900"
+                    }`}
                     numberOfLines={1}
                   >
                     {user.nama} {isMe ? "(Kamu)" : ""}
                   </Text>
-                  <Text className="text-subtext text-[11px]">
+                  <Text className="font-mono text-gray-500 text-[10px]">
                     Level {user.level} • {user.kelas}
                   </Text>
                 </View>
               </View>
 
               <View className="items-end">
-                <Text className="text-amber-400 font-black text-sm">
+                <Text className="text-amber-700 font-mono font-bold text-xs">
                   {user.total_exp}
                 </Text>
-                <Text className="text-slate-500 font-semibold text-[10px]">EXP</Text>
+                <Text className="text-gray-400 font-mono font-semibold text-[9px]">EXP</Text>
               </View>
             </View>
           );

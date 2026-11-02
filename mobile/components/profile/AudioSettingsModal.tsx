@@ -80,42 +80,42 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-black/60 justify-end">
-        <View className="bg-slate-900 border-t border-slate-800 rounded-t-3xl p-6 shadow-2xl">
+      <View className="flex-1 bg-black/50 justify-end">
+        <View className="bg-white border-t border-gray-200 rounded-t-3xl p-6 shadow-2xl">
           {/* Header */}
           <View className="flex-row items-center justify-between mb-5">
             <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-lg bg-primary/20 items-center justify-center mr-2.5">
-                <Icon name="SpeakerWaveIcon" variant="solid" size={18} color="#38bdf8" />
+              <View className="w-8 h-8 rounded-lg bg-sky-50 items-center justify-center mr-2.5 border border-sky-100">
+                <Icon name="SpeakerWaveIcon" variant="solid" size={18} color="#0284c7" />
               </View>
-              <Text className="text-white font-bold text-lg">Pengaturan Audio</Text>
+              <Text className="text-gray-900 font-bold text-lg">Pengaturan Audio</Text>
             </View>
             <TouchableOpacity onPress={onClose} className="p-1">
-              <Icon name="XMarkIcon" variant="outline" size={22} color="#94a3b8" />
+              <Icon name="XMarkIcon" variant="outline" size={22} color="#6b7280" />
             </TouchableOpacity>
           </View>
 
           {/* Toggle Switch Audio Aktif */}
-          <View className="flex-row items-center justify-between bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 mb-4">
+          <View className="flex-row items-center justify-between bg-slate-50 p-4 rounded-2xl border border-gray-200 mb-4">
             <View className="flex-1 mr-3">
-              <Text className="text-white font-bold text-sm">Audio & Musik</Text>
-              <Text className="text-slate-400 text-xs mt-0.5">
+              <Text className="text-gray-900 font-bold text-sm">Audio & Musik</Text>
+              <Text className="text-gray-500 font-mono text-xs mt-0.5">
                 Aktifkan efek suara (SFX) dan latar musik (BGM)
               </Text>
             </View>
             <Switch
               value={audioAktif}
               onValueChange={handleToggle}
-              trackColor={{ false: "#334155", true: "#0284c7" }}
-              thumbColor={audioAktif ? "#38bdf8" : "#94a3b8"}
+              trackColor={{ false: "#e2e8f0", true: "#0284c7" }}
+              thumbColor={audioAktif ? "#ffffff" : "#94a3b8"}
             />
           </View>
 
           {/* Volume Presets */}
-          <View className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 mb-6">
+          <View className="bg-slate-50 p-4 rounded-2xl border border-gray-200 mb-6">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-white font-bold text-sm">Tingkat Volume</Text>
-              <Text className="text-sky-400 font-extrabold text-xs">
+              <Text className="text-gray-900 font-bold text-sm">Tingkat Volume</Text>
+              <Text className="text-sky-700 font-mono font-bold text-xs">
                 {Math.round(volume * 100)}%
               </Text>
             </View>
@@ -129,13 +129,13 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
                     disabled={!audioAktif}
                     className={`px-3 py-2 rounded-xl border items-center flex-1 mx-0.5 ${
                       isActive
-                        ? "bg-primary border-blue-400"
-                        : "bg-slate-700/60 border-slate-600"
+                        ? "bg-gray-900 border-gray-900"
+                        : "bg-white border-gray-300"
                     } ${!audioAktif ? "opacity-40" : ""}`}
                   >
                     <Text
-                      className={`font-black text-xs ${
-                        isActive ? "text-white" : "text-slate-300"
+                      className={`font-mono font-bold text-xs ${
+                        isActive ? "text-white" : "text-gray-700"
                       }`}
                     >
                       {preset.label}
@@ -150,12 +150,12 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="bg-primary py-3.5 rounded-xl items-center shadow-lg shadow-blue-500/20"
+            className="bg-gray-900 py-3.5 rounded-xl items-center shadow-xs"
           >
             {saving ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text className="text-white font-black text-base">Simpan Pengaturan</Text>
+              <Text className="text-white font-bold text-base">Simpan Pengaturan</Text>
             )}
           </TouchableOpacity>
         </View>

@@ -21,56 +21,52 @@ export const BadgeGallery: React.FC<BadgeGalleryProps> = ({
   const getTierStyles = (tier: string, unlocked: boolean) => {
     if (!unlocked) {
       return {
-        border: "border-slate-800",
-        bg: "bg-slate-900/50",
-        color: "#64748b",
-        glow: "",
+        border: "border-gray-300",
+        bg: "bg-white/60",
+        color: "#9ca3af",
       };
     }
     switch (tier?.toLowerCase()) {
       case "platinum":
+      case "ruby":
         return {
-          border: "border-cyan-400",
-          bg: "bg-cyan-500/20",
-          color: "#22d3ee",
-          glow: "shadow-sm shadow-cyan-400/30",
+          border: "border-rose-400",
+          bg: "bg-rose-50",
+          color: "#e11d48",
         };
       case "gold":
         return {
           border: "border-amber-400",
-          bg: "bg-amber-500/20",
-          color: "#f59e0b",
-          glow: "shadow-sm shadow-amber-400/30",
+          bg: "bg-amber-50",
+          color: "#d97706",
         };
       case "silver":
         return {
           border: "border-slate-300",
-          bg: "bg-slate-300/20",
-          color: "#cbd5e1",
-          glow: "shadow-sm shadow-slate-300/30",
+          bg: "bg-slate-100",
+          color: "#64748b",
         };
       case "bronze":
       default:
         return {
-          border: "border-amber-700",
-          bg: "bg-amber-800/20",
-          color: "#d97706",
-          glow: "shadow-sm shadow-amber-700/30",
+          border: "border-amber-700/50",
+          bg: "bg-amber-100/60",
+          color: "#b45309",
         };
     }
   };
 
   return (
-    <View className="bg-surface border border-surface-light rounded-3xl p-4 mb-4">
+    <View className="bg-[#dde3ea] rounded-2xl p-4 mb-4">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-3.5">
         <View className="flex-row items-center">
-          <View className="w-7 h-7 rounded-lg bg-amber-500/20 items-center justify-center mr-2">
-            <Icon name="TrophyIcon" variant="solid" size={16} color="#f59e0b" />
+          <View className="w-7 h-7 rounded-lg bg-amber-100 items-center justify-center mr-2 border border-amber-200">
+            <Icon name="TrophyIcon" variant="solid" size={16} color="#d97706" />
           </View>
           <View>
-            <Text className="text-text font-bold text-sm">Badge Prestasi</Text>
-            <Text className="text-subtext text-[11px] font-medium">
+            <Text className="text-gray-900 font-bold text-sm">Badge Prestasi</Text>
+            <Text className="font-mono text-gray-700 text-[11px] font-medium">
               {unlockedCount}/{badges.length > 0 ? badges.length : 15} Lencana Diraih
             </Text>
           </View>
@@ -79,10 +75,10 @@ export const BadgeGallery: React.FC<BadgeGalleryProps> = ({
         {onPressSeeAll && (
           <TouchableOpacity
             onPress={onPressSeeAll}
-            className="flex-row items-center bg-surface-light/40 px-2.5 py-1 rounded-full border border-slate-700"
+            className="flex-row items-center bg-white px-2.5 py-1 rounded-full border border-gray-300 shadow-xs"
           >
-            <Text className="text-blue-400 font-bold text-xs mr-0.5">Semua Badge</Text>
-            <Icon name="ChevronRightIcon" variant="outline" size={13} color="#60a5fa" />
+            <Text className="text-amber-800 font-bold text-xs mr-0.5">Semua Badge</Text>
+            <Icon name="ChevronRightIcon" variant="outline" size={13} color="#92400e" />
           </TouchableOpacity>
         )}
       </View>
@@ -104,7 +100,7 @@ export const BadgeGallery: React.FC<BadgeGalleryProps> = ({
               className="items-center w-[22%]"
             >
               <View
-                className={`w-14 h-14 rounded-full border-2 ${style.border} ${style.bg} ${style.glow} items-center justify-center mb-1.5`}
+                className={`w-14 h-14 rounded-full border-2 ${style.border} ${style.bg} items-center justify-center mb-1.5 shadow-xs`}
               >
                 <Icon
                   name={iconName}
@@ -115,8 +111,8 @@ export const BadgeGallery: React.FC<BadgeGalleryProps> = ({
               </View>
 
               <Text
-                className={`font-semibold text-[10px] text-center ${
-                  badge.unlocked ? "text-slate-200" : "text-slate-500"
+                className={`font-mono font-semibold text-[10px] text-center ${
+                  badge.unlocked ? "text-gray-900" : "text-gray-400"
                 }`}
                 numberOfLines={1}
               >
@@ -130,10 +126,10 @@ export const BadgeGallery: React.FC<BadgeGalleryProps> = ({
         {previewBadges.length < 4 &&
           Array.from({ length: 4 - previewBadges.length }).map((_, i) => (
             <View key={`empty-badge-${i}`} className="items-center w-[22%]">
-              <View className="w-14 h-14 rounded-full border-2 border-slate-800 bg-slate-900/40 items-center justify-center mb-1.5">
-                <Icon name="LockClosedIcon" variant="outline" size={20} color="#475569" />
+              <View className="w-14 h-14 rounded-full border border-gray-300 bg-white/40 items-center justify-center mb-1.5">
+                <Icon name="LockClosedIcon" variant="outline" size={20} color="#9ca3af" />
               </View>
-              <Text className="text-slate-600 font-semibold text-[10px]">Terkunci</Text>
+              <Text className="text-gray-400 font-mono font-semibold text-[10px]">Terkunci</Text>
             </View>
           ))}
       </View>

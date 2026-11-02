@@ -3,10 +3,8 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  RefreshControl,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { profileService } from "../../services/profileService";
@@ -41,74 +39,59 @@ export default function LeaderboardScreen() {
     fetchLeaderboardData();
   }, []);
 
-  const top1 = leaderboard[0];
-  const top2 = leaderboard[1];
-  const top3 = leaderboard[2];
-  const rest = leaderboard.slice(3);
-
   return (
-    <View className="flex-1 bg-background">
-      {/* Top App Bar */}
-      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between border-b border-surface-light bg-surface/80">
+    <View className="flex-1 bg-white">
+      {/* Top Header Bar */}
+      <View className="pt-12 pb-3 px-6 flex-row items-center justify-between border-b border-gray-100 bg-white">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full bg-surface-light/60 items-center justify-center border border-slate-700"
+          className="p-1.5 rounded-full bg-slate-100 border border-gray-200"
+          accessibilityLabel="Kembali"
         >
-          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#f8fafc" />
+          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-text font-black text-lg">Papan Peringkat</Text>
-        <View className="w-10" />
+        <Text className="text-gray-900 font-bold text-xl tracking-tight">
+          Papan Peringkat
+        </Text>
+        <View className="w-8" />
       </View>
 
-      <ScrollView
-        className="flex-1 px-5 pt-4"
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchLeaderboardData();
-            }}
-            tintColor="#3b82f6"
-          />
-        }
-      >
-        {loading && !refreshing ? (
-          <View className="py-20 items-center justify-center">
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <Text className="text-subtext text-xs mt-3">Memuat Papan Peringkat...</Text>
-          </View>
-        ) : (
-          <LeaderboardTable
-            leaderboard={leaderboard}
-            userRank={userRank}
-            currentUserId={userProfile?.id_user}
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchLeaderboardData();
-            }}
-          />
-        )}
-      </ScrollView>
+      {loading && !refreshing ? (
+        <View className="flex-1 py-20 items-center justify-center">
+          <ActivityIndicator size="large" color="#0284c7" />
+          <Text className="text-gray-500 font-mono text-xs mt-3">
+            Memuat Papan Peringkat...
+          </Text>
+        </View>
+      ) : (
+        <LeaderboardTable
+          leaderboard={leaderboard}
+          userRank={userRank}
+          currentUserId={userProfile?.id_user}
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            fetchLeaderboardData();
+          }}
+        />
+      )}
 
       {/* Floating User Rank Banner */}
       {userRank && (
-        <View className="absolute bottom-5 left-5 right-5 bg-primary/95 border border-blue-400 p-4 rounded-2xl shadow-xl flex-row items-center justify-between">
+        <View className="absolute bottom-5 left-5 right-5 bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3">
-              <Text className="text-white font-black text-base">#{userRank}</Text>
+            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3 border border-white/30">
+              <Text className="text-white font-mono font-bold text-base">#{userRank}</Text>
             </View>
             <View>
-              <Text className="text-white font-black text-sm">Posisi Peringkat Kamu</Text>
-              <Text className="text-blue-100 text-xs">
+              <Text className="text-white font-bold text-sm">Posisi Peringkat Kamu</Text>
+              <Text className="text-gray-300 font-mono text-xs">
                 Total {userProfile?.total_exp || 0} EXP terkumpul
               </Text>
             </View>
           </View>
-          <View className="bg-white/20 px-3 py-1 rounded-full">
-            <Text className="text-white font-bold text-xs">Top Performer</Text>
+          <View className="bg-amber-400 px-3 py-1 rounded-full">
+            <Text className="text-amber-950 font-bold text-xs">Top Siswa</Text>
           </View>
         </View>
       )}

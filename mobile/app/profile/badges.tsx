@@ -56,36 +56,40 @@ export default function BadgesScreen() {
   const progressPercent =
     badges.length > 0 ? Math.round((unlockedCount / badges.length) * 100) : 0;
 
-  const getTierColor = (tier: string) => {
+  const getTierStyles = (tier: string) => {
     switch (tier?.toLowerCase()) {
       case "platinum":
-        return { text: "text-cyan-400", border: "border-cyan-400", bg: "bg-cyan-500/20" };
+      case "ruby":
+        return { text: "text-rose-700", border: "border-rose-300", bg: "bg-rose-50", iconColor: "#e11d48" };
       case "gold":
-        return { text: "text-amber-400", border: "border-amber-400", bg: "bg-amber-500/20" };
+        return { text: "text-amber-800", border: "border-amber-300", bg: "bg-amber-50", iconColor: "#d97706" };
       case "silver":
-        return { text: "text-slate-300", border: "border-slate-300", bg: "bg-slate-400/20" };
+        return { text: "text-slate-700", border: "border-slate-300", bg: "bg-slate-100", iconColor: "#64748b" };
       case "bronze":
       default:
-        return { text: "text-amber-700", border: "border-amber-700", bg: "bg-amber-800/20" };
+        return { text: "text-amber-900", border: "border-amber-700/40", bg: "bg-amber-100/50", iconColor: "#b45309" };
     }
   };
 
   return (
-    <View className="flex-1 bg-background">
-      {/* Top App Bar */}
-      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between border-b border-surface-light bg-surface/80">
+    <View className="flex-1 bg-white">
+      {/* Top Header Bar */}
+      <View className="pt-12 pb-3 px-6 flex-row items-center justify-between border-b border-gray-100 bg-white">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full bg-surface-light/60 items-center justify-center border border-slate-700"
+          className="p-1.5 rounded-full bg-slate-100 border border-gray-200"
+          accessibilityLabel="Kembali"
         >
-          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#f8fafc" />
+          <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-text font-black text-lg">Katalog Badge</Text>
-        <View className="w-10" />
+        <Text className="text-gray-900 font-bold text-xl tracking-tight">
+          Katalog 15 Badge
+        </Text>
+        <View className="w-8" />
       </View>
 
       <ScrollView
-        className="flex-1 px-5 pt-4"
+        className="flex-1 px-6 pt-4"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -94,27 +98,27 @@ export default function BadgesScreen() {
               setRefreshing(true);
               fetchBadges();
             }}
-            tintColor="#3b82f6"
+            tintColor="#0284c7"
           />
         }
       >
-        {/* Progress Card */}
-        <View className="bg-surface border border-surface-light rounded-3xl p-5 mb-5 shadow-sm">
-          <View className="flex-row items-center justify-between mb-3">
+        {/* Progress Card (Matching Mockup #dde3ea) */}
+        <View className="bg-[#dde3ea] rounded-2xl p-4 mb-4">
+          <View className="flex-row items-center justify-between mb-2.5">
             <View>
-              <Text className="text-text font-black text-lg">Prestasi Terkumpul</Text>
-              <Text className="text-subtext text-xs">
+              <Text className="text-gray-900 font-bold text-base">Prestasi Terkumpul</Text>
+              <Text className="font-mono text-gray-700 text-xs">
                 {unlockedCount} dari {badges.length || 15} Lencana Berhasil Diraih
               </Text>
             </View>
-            <View className="bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/40">
-              <Text className="text-amber-400 font-extrabold text-sm">
+            <View className="bg-white px-2.5 py-1 rounded-full border border-gray-300 shadow-xs">
+              <Text className="text-amber-600 font-mono font-bold text-xs">
                 {progressPercent}%
               </Text>
             </View>
           </View>
 
-          <View className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+          <View className="h-2.5 w-full bg-white/70 rounded-full overflow-hidden border border-gray-300">
             <View
               className="h-full bg-amber-400 rounded-full"
               style={{ width: `${progressPercent}%` }}
@@ -126,7 +130,7 @@ export default function BadgesScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="flex-row mb-5 pb-1"
+          className="flex-row mb-4 pb-1"
         >
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
@@ -134,15 +138,15 @@ export default function BadgesScreen() {
               <TouchableOpacity
                 key={cat.id}
                 onPress={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-2xl mr-2.5 border ${
+                className={`px-3.5 py-1.5 rounded-xl mr-2 border ${
                   isSelected
-                    ? "bg-primary border-primary shadow-sm shadow-blue-500/30"
-                    : "bg-surface border-surface-light"
+                    ? "bg-gray-900 border-gray-900"
+                    : "bg-[#dde1e6] border-transparent"
                 }`}
               >
                 <Text
-                  className={`font-bold text-xs ${
-                    isSelected ? "text-white" : "text-subtext"
+                  className={`font-mono text-xs font-semibold ${
+                    isSelected ? "text-white" : "text-gray-800"
                   }`}
                 >
                   {cat.label}
@@ -155,13 +159,15 @@ export default function BadgesScreen() {
         {/* Badge List */}
         {loading && !refreshing ? (
           <View className="py-20 items-center justify-center">
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <Text className="text-subtext text-xs mt-3">Memuat Daftar Badge...</Text>
+            <ActivityIndicator size="large" color="#0284c7" />
+            <Text className="text-gray-500 font-mono text-xs mt-3">
+              Memuat Daftar Badge...
+            </Text>
           </View>
         ) : (
           <View className="space-y-3 mb-16">
             {filteredBadges.map((badge) => {
-              const tierColor = getTierColor(badge.tier);
+              const tierStyle = getTierStyles(badge.tier);
               const isUnlocked = badge.unlocked;
 
               return (
@@ -169,16 +175,18 @@ export default function BadgesScreen() {
                   key={badge.id_badge}
                   onPress={() => setActiveModalBadge(badge)}
                   activeOpacity={0.7}
-                  className={`bg-surface border ${
-                    isUnlocked ? "border-surface-light" : "border-slate-800/80 opacity-60"
-                  } p-4 rounded-3xl flex-row items-center justify-between mb-3 shadow-sm`}
+                  className={`border rounded-2xl p-3.5 flex-row items-center justify-between mb-3 ${
+                    isUnlocked
+                      ? "bg-white border-gray-200 shadow-xs"
+                      : "bg-gray-50 border-gray-200 opacity-60"
+                  }`}
                 >
                   <View className="flex-row items-center flex-1 mr-3">
                     <View
-                      className={`w-14 h-14 rounded-2xl border-2 ${
-                        isUnlocked ? tierColor.border : "border-slate-700"
+                      className={`w-13 h-13 rounded-2xl border ${
+                        isUnlocked ? tierStyle.border : "border-gray-300"
                       } ${
-                        isUnlocked ? tierColor.bg : "bg-slate-800/60"
+                        isUnlocked ? tierStyle.bg : "bg-gray-200"
                       } items-center justify-center mr-3`}
                     >
                       <Icon
@@ -188,31 +196,31 @@ export default function BadgesScreen() {
                             : "LockClosedIcon"
                         }
                         variant="solid"
-                        size={26}
-                        color={isUnlocked ? (badge.tier === "platinum" ? "#22d3ee" : "#f59e0b") : "#64748b"}
+                        size={24}
+                        color={isUnlocked ? tierStyle.iconColor : "#9ca3af"}
                       />
                     </View>
 
                     <View className="flex-1">
-                      <View className="flex-row items-center mb-1">
+                      <View className="flex-row items-center mb-0.5">
                         <Text
-                          className={`font-black text-sm mr-2 ${
-                            isUnlocked ? "text-text" : "text-slate-400"
+                          className={`font-mono font-bold text-sm mr-2 ${
+                            isUnlocked ? "text-gray-900" : "text-gray-400"
                           }`}
                           numberOfLines={1}
                         >
                           {badge.nama}
                         </Text>
                         <View
-                          className={`px-2 py-0.5 rounded-md ${tierColor.bg} border ${tierColor.border}`}
+                          className={`px-1.5 py-0.5 rounded ${tierStyle.bg} border ${tierStyle.border}`}
                         >
-                          <Text className={`font-extrabold text-[9px] uppercase ${tierColor.text}`}>
+                          <Text className={`font-mono font-bold text-[9px] uppercase ${tierStyle.text}`}>
                             {badge.tier}
                           </Text>
                         </View>
                       </View>
 
-                      <Text className="text-subtext text-xs leading-4" numberOfLines={2}>
+                      <Text className="font-mono text-gray-500 text-xs leading-4" numberOfLines={2}>
                         {badge.deskripsi}
                       </Text>
                     </View>
@@ -220,8 +228,8 @@ export default function BadgesScreen() {
 
                   <View className="items-end">
                     <Text
-                      className={`text-[11px] font-bold ${
-                        isUnlocked ? "text-emerald-400" : "text-slate-500"
+                      className={`text-[11px] font-mono font-bold ${
+                        isUnlocked ? "text-emerald-600" : "text-gray-400"
                       }`}
                     >
                       {isUnlocked ? "Terbuka" : "Terkunci"}
@@ -241,9 +249,9 @@ export default function BadgesScreen() {
         animationType="fade"
         onRequestClose={() => setActiveModalBadge(null)}
       >
-        <View className="flex-1 bg-black/80 justify-center items-center px-6">
-          <View className="bg-surface border border-surface-light rounded-3xl p-6 w-full max-w-sm items-center shadow-2xl">
-            <View className="w-20 h-20 rounded-full border-4 border-amber-400 bg-amber-500/20 items-center justify-center mb-4">
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+          <View className="bg-white border border-gray-200 rounded-3xl p-6 w-full max-w-sm items-center shadow-2xl">
+            <View className="w-20 h-20 rounded-full border-4 border-amber-300 bg-amber-50 items-center justify-center mb-4">
               <Icon
                 name={
                   activeModalBadge?.unlocked && activeModalBadge.icon_name
@@ -252,30 +260,30 @@ export default function BadgesScreen() {
                 }
                 variant="solid"
                 size={38}
-                color={activeModalBadge?.unlocked ? "#f59e0b" : "#94a3b8"}
+                color={activeModalBadge?.unlocked ? "#d97706" : "#9ca3af"}
               />
             </View>
 
-            <View className="bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/40 mb-2">
-              <Text className="text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+            <View className="bg-amber-50 px-3 py-1 rounded-full border border-amber-200 mb-2">
+              <Text className="text-amber-800 font-mono font-bold text-xs uppercase tracking-wider">
                 {activeModalBadge?.tier} • {activeModalBadge?.kategori}
               </Text>
             </View>
 
-            <Text className="text-text font-black text-xl text-center mb-2">
+            <Text className="text-gray-900 font-bold text-xl text-center mb-2">
               {activeModalBadge?.nama}
             </Text>
 
-            <Text className="text-subtext text-center text-sm leading-5 mb-5">
+            <Text className="font-mono text-gray-600 text-center text-xs leading-5 mb-5">
               {activeModalBadge?.deskripsi}
             </Text>
 
-            <View className="w-full bg-background/80 p-3 rounded-2xl border border-surface-light mb-5">
-              <Text className="text-slate-400 text-xs font-semibold text-center">
+            <View className="w-full bg-slate-50 p-3 rounded-2xl border border-gray-200 mb-5">
+              <Text className="text-gray-600 font-mono text-xs text-center">
                 Status:{" "}
                 <Text
                   className={`font-bold ${
-                    activeModalBadge?.unlocked ? "text-emerald-400" : "text-slate-500"
+                    activeModalBadge?.unlocked ? "text-emerald-600" : "text-gray-400"
                   }`}
                 >
                   {activeModalBadge?.unlocked
@@ -287,7 +295,7 @@ export default function BadgesScreen() {
 
             <TouchableOpacity
               onPress={() => setActiveModalBadge(null)}
-              className="bg-primary w-full py-3.5 rounded-xl items-center"
+              className="bg-gray-900 w-full py-3.5 rounded-xl items-center shadow-sm"
             >
               <Text className="text-white font-bold text-base">Tutup</Text>
             </TouchableOpacity>

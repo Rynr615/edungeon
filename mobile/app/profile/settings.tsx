@@ -74,7 +74,7 @@ export default function SettingsScreen() {
         >
           <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="font-mono text-gray-900 font-bold text-lg">Settings</Text>
+        <Text style={{ fontFamily: "DMSans_700Bold" }} className="text-gray-900 text-xl tracking-tight">Settings</Text>
         <View className="w-10" />
       </View>
 

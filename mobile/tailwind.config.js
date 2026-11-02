@@ -15,6 +15,11 @@ module.exports = {
         dmsans: ["DMSans_700Bold", "sans-serif"],
         "dmsans-bold": ["DMSans_700Bold", "sans-serif"],
         "dmsans-regular": ["DMSans_400Regular", "sans-serif"],
+        poppins: ["Poppins_400Regular", "sans-serif"],
+        "poppins-medium": ["Poppins_500Medium", "sans-serif"],
+        "poppins-semibold": ["Poppins_600SemiBold", "sans-serif"],
+        "poppins-bold": ["Poppins_700Bold", "sans-serif"],
+        "poppins-extrabold": ["Poppins_800ExtraBold", "sans-serif"],
       },
       colors: {
         // Token Semantik UI (Placeholder Netral)

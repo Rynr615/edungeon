@@ -61,6 +61,13 @@ import {
   DMSans_500Medium,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+} from "@expo-google-fonts/poppins";
 import { AudioProvider } from "../context/AudioContext";
 
 export default function RootLayout() {
@@ -73,6 +80,11 @@ export default function RootLayout() {
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
   });
 
   if (!fontsLoaded) {

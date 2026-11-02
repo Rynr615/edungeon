@@ -78,7 +78,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
       {/* EXP Percentage & Progress Bar */}
       <View className="w-full">
-        <Text className="font-bold text-sky-500 text-xs ml-4 mb-1">
+        <Text className="font-mono font-bold text-sky-500 text-xs ml-4 mb-1">
           {expPercentage}%
         </Text>
         <View className="h-3 w-full bg-blue-100 rounded-full overflow-hidden">

@@ -74,7 +74,7 @@ export default function SettingsScreen() {
         >
           <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-gray-900 font-bold text-lg">Settings</Text>
+        <Text className="font-mono text-gray-900 font-bold text-lg">Settings</Text>
         <View className="w-10" />
       </View>
 
@@ -91,16 +91,16 @@ export default function SettingsScreen() {
               />
             </View>
             <View>
-              <Text className="text-gray-900 font-bold text-base">Suara & Audio Game</Text>
-              <Text className="text-gray-400 text-xs">Musik latar BGM dan efek suara pertarungan</Text>
+              <Text className="font-mono text-gray-900 font-bold text-base">Suara & Audio Game</Text>
+              <Text className="font-mono text-gray-400 text-xs">Musik latar BGM dan efek suara pertarungan</Text>
             </View>
           </View>
 
           {/* Toggle Switch */}
           <View className="flex-row items-center justify-between py-3 border-t border-gray-100">
             <View>
-              <Text className="text-gray-900 font-semibold text-sm">Aktifkan Suara</Text>
-              <Text className="text-gray-400 text-xs">Suara dungeon, tebasan, dan combo</Text>
+              <Text className="font-mono text-gray-900 font-semibold text-sm">Aktifkan Suara</Text>
+              <Text className="font-mono text-gray-400 text-xs">Suara dungeon, tebasan, dan combo</Text>
             </View>
             <Switch
               value={audioAktif}
@@ -113,8 +113,8 @@ export default function SettingsScreen() {
           {/* Volume Presets */}
           <View className="pt-4 border-t border-gray-100">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 font-semibold text-sm">Tingkat Volume</Text>
-              <Text className="text-indigo-600 font-bold text-xs">
+              <Text className="font-mono text-gray-900 font-semibold text-sm">Tingkat Volume</Text>
+              <Text className="font-mono text-indigo-600 font-bold text-xs">
                 {Math.round(volume * 100)}%
               </Text>
             </View>

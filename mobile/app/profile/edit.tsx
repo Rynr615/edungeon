@@ -178,9 +178,12 @@ export default function EditProfileScreen() {
   return (
     <View className="flex-1 bg-white">
       <ScrollView className="flex-1 px-6 pt-12" showsVerticalScrollIndicator={false}>
-        {/* Top Header: Title & Back */}
+        {/* Top Header: Title & Back (DM Sans for Profile title) */}
         <View className="flex-row items-center justify-between mb-2">
-          <Text className="font-bold text-2xl text-gray-900 tracking-tight">
+          <Text
+            style={{ fontFamily: "DMSans_700Bold" }}
+            className="text-2xl text-gray-900 tracking-tight"
+          >
             Profile
           </Text>
           <TouchableOpacity

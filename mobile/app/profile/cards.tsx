@@ -69,7 +69,10 @@ export default function CardsCatalogScreen() {
         >
           <Icon name="ChevronLeftIcon" variant="outline" size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-gray-900 font-bold text-xl tracking-tight">
+        <Text
+          style={{ fontFamily: "DMSans_700Bold" }}
+          className="text-gray-900 text-xl tracking-tight"
+        >
           Koleksi Kartu Buff
         </Text>
         <View className="w-8" />

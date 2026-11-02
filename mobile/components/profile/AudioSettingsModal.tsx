@@ -88,7 +88,7 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
               <View className="w-8 h-8 rounded-lg bg-sky-50 items-center justify-center mr-2.5 border border-sky-100">
                 <Icon name="SpeakerWaveIcon" variant="solid" size={18} color="#0284c7" />
               </View>
-              <Text className="text-gray-900 font-bold text-lg">Pengaturan Audio</Text>
+              <Text className="font-mono text-gray-900 font-bold text-lg">Pengaturan Audio</Text>
             </View>
             <TouchableOpacity onPress={onClose} className="p-1">
               <Icon name="XMarkIcon" variant="outline" size={22} color="#6b7280" />
@@ -98,7 +98,7 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
           {/* Toggle Switch Audio Aktif */}
           <View className="flex-row items-center justify-between bg-slate-50 p-4 rounded-2xl border border-gray-200 mb-4">
             <View className="flex-1 mr-3">
-              <Text className="text-gray-900 font-bold text-sm">Audio & Musik</Text>
+              <Text className="font-mono text-gray-900 font-bold text-sm">Audio & Musik</Text>
               <Text className="text-gray-500 font-mono text-xs mt-0.5">
                 Aktifkan efek suara (SFX) dan latar musik (BGM)
               </Text>
@@ -114,7 +114,7 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
           {/* Volume Presets */}
           <View className="bg-slate-50 p-4 rounded-2xl border border-gray-200 mb-6">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 font-bold text-sm">Tingkat Volume</Text>
+              <Text className="font-mono text-gray-900 font-bold text-sm">Tingkat Volume</Text>
               <Text className="text-sky-700 font-mono font-bold text-xs">
                 {Math.round(volume * 100)}%
               </Text>
@@ -155,7 +155,7 @@ export const AudioSettingsModal: React.FC<AudioSettingsModalProps> = ({
             {saving ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text className="text-white font-bold text-base">Simpan Pengaturan</Text>
+              <Text className="font-mono text-white font-bold text-base">Simpan Pengaturan</Text>
             )}
           </TouchableOpacity>
         </View>

@@ -75,7 +75,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
       <View className="flex-1 bg-black/50 justify-end">
         <View className="bg-white rounded-t-3xl p-6 shadow-2xl">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="font-bold text-lg text-gray-900">
+            <Text className="font-mono font-bold text-lg text-gray-900">
               Ubah Informasi Pribadi
             </Text>
             <TouchableOpacity onPress={onClose}>
@@ -84,7 +84,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </View>
 
           {/* Input Nama Lengkap */}
-          <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Lengkap</Text>
+          <Text className="font-mono text-gray-700 text-xs font-semibold mb-1">Nama Lengkap</Text>
           <TextInput
             value={nama}
             onChangeText={setNama}
@@ -94,7 +94,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           />
 
           {/* Input Nama Panggilan */}
-          <Text className="text-gray-700 text-xs font-semibold mb-1">Nama Panggilan</Text>
+          <Text className="font-mono text-gray-700 text-xs font-semibold mb-1">Nama Panggilan</Text>
           <TextInput
             value={namaPanggilan}
             onChangeText={setNamaPanggilan}
@@ -104,7 +104,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           />
 
           {/* Input Kelas */}
-          <Text className="text-gray-700 text-xs font-semibold mb-1">Kelas</Text>
+          <Text className="font-mono text-gray-700 text-xs font-semibold mb-1">Kelas</Text>
           <TextInput
             value={kelas}
             onChangeText={setKelas}
@@ -114,7 +114,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           />
 
           {/* Input No HP */}
-          <Text className="text-gray-700 text-xs font-semibold mb-1">No. HP / WhatsApp</Text>
+          <Text className="font-mono text-gray-700 text-xs font-semibold mb-1">No. HP / WhatsApp</Text>
           <TextInput
             value={noHp}
             onChangeText={setNoHp}
@@ -133,7 +133,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {saving ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text className="text-white font-bold text-base">Simpan Perubahan</Text>
+              <Text className="font-mono text-white font-bold text-base">Simpan Perubahan</Text>
             )}
           </TouchableOpacity>
         </View>

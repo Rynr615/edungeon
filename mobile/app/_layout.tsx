@@ -48,9 +48,41 @@ function RootLayoutNav() {
   );
 }
 
+import { useFonts } from "expo-font";
+import {
+  SourceCodePro_400Regular,
+  SourceCodePro_500Medium,
+  SourceCodePro_600SemiBold,
+  SourceCodePro_700Bold,
+  SourceCodePro_800ExtraBold,
+} from "@expo-google-fonts/source-code-pro";
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_700Bold,
+} from "@expo-google-fonts/dm-sans";
 import { AudioProvider } from "../context/AudioContext";
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    SourceCodePro_400Regular,
+    SourceCodePro_500Medium,
+    SourceCodePro_600SemiBold,
+    SourceCodePro_700Bold,
+    SourceCodePro_800ExtraBold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#111827" />
+      </View>
+    );
+  }
+
   return (
     <AuthProvider>
       <AudioProvider>

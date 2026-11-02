@@ -5,6 +5,17 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["SourceCodePro_400Regular", "monospace"],
+        mono: ["SourceCodePro_400Regular", "monospace"],
+        "source-regular": ["SourceCodePro_400Regular", "monospace"],
+        "source-medium": ["SourceCodePro_500Medium", "monospace"],
+        "source-semibold": ["SourceCodePro_600SemiBold", "monospace"],
+        "source-bold": ["SourceCodePro_700Bold", "monospace"],
+        dmsans: ["DMSans_700Bold", "sans-serif"],
+        "dmsans-bold": ["DMSans_700Bold", "sans-serif"],
+        "dmsans-regular": ["DMSans_400Regular", "sans-serif"],
+      },
       colors: {
         // Token Semantik UI (Placeholder Netral)
         primary: "#2563eb",

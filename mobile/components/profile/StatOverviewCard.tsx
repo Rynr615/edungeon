@@ -19,7 +19,7 @@ export const StatOverviewCard: React.FC<StatOverviewProps> = ({
 }) => {
   return (
     <View className="mb-2">
-      <Text className="font-bold text-lg text-gray-900 mb-3">Statistik</Text>
+      <Text className="font-mono font-bold text-lg text-gray-900 mb-3">Statistik</Text>
 
       <View className="flex-row flex-wrap justify-between">
         {/* 1. Monster dikalahkan */}

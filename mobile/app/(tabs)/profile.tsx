@@ -91,9 +91,12 @@ export default function ProfileScreen() {
           />
         }
       >
-        {/* Screen Title: Profile */}
+        {/* Screen Title: Profile (DM Sans font as specified) */}
         <View className="flex-row items-center justify-between mb-5">
-          <Text className="font-bold text-2xl text-gray-900 tracking-tight">
+          <Text
+            style={{ fontFamily: "DMSans_700Bold" }}
+            className="text-2xl text-gray-900 tracking-tight"
+          >
             Profile
           </Text>
           {loading && !refreshing && (

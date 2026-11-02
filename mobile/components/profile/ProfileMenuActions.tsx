@@ -27,8 +27,8 @@ export const ProfileMenuActions: React.FC<ProfileMenuActionsProps> = ({
             <Icon name="UserIcon" variant="outline" size={20} color="#6366f1" />
           </View>
           <View className="flex-1">
-            <Text className="font-bold text-sm text-gray-900">Edit Profile</Text>
-            <Text className="text-xs text-gray-400 mt-0.5">
+            <Text className="font-mono font-bold text-sm text-gray-900">Edit Profile</Text>
+            <Text className="font-mono text-xs text-gray-400 mt-0.5">
               Make changes to your account
             </Text>
           </View>
@@ -48,8 +48,8 @@ export const ProfileMenuActions: React.FC<ProfileMenuActionsProps> = ({
             <Icon name="UserIcon" variant="outline" size={20} color="#6366f1" />
           </View>
           <View className="flex-1">
-            <Text className="font-bold text-sm text-gray-900">Settings</Text>
-            <Text className="text-xs text-gray-400 mt-0.5">
+            <Text className="font-mono font-bold text-sm text-gray-900">Settings</Text>
+            <Text className="font-mono text-xs text-gray-400 mt-0.5">
               Manage your account
             </Text>
           </View>
@@ -69,8 +69,8 @@ export const ProfileMenuActions: React.FC<ProfileMenuActionsProps> = ({
             <Icon name="ArrowRightOnRectangleIcon" variant="outline" size={20} color="#64748b" />
           </View>
           <View className="flex-1">
-            <Text className="font-bold text-sm text-gray-900">Log out</Text>
-            <Text className="text-xs text-gray-400 mt-0.5">
+            <Text className="font-mono font-bold text-sm text-gray-900">Log out</Text>
+            <Text className="font-mono text-xs text-gray-400 mt-0.5">
               Further secure your account for safety
             </Text>
           </View>

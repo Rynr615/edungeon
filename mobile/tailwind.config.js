@@ -6,25 +6,43 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Token Semantik UI (Placeholder Netral)
-        primary: "#2563eb",
-        secondary: "#475569",
-        background: "#0f172a",
-        surface: "#1e293b",
-        "surface-light": "#334155",
-        text: "#f8fafc",
-        subtext: "#94a3b8",
-        success: "#22c55e",
-        danger: "#ef4444",
-        warning: "#f59e0b",
-        
-        // Token Semantik Game
-        hp: "#ef4444",
-        exp: "#eab308",
-        boss: "#a855f7",
-        shield: "#3b82f6",
-        mana: "#06b6d4",
-        dodge: "#10b981",
+        // [TOKEN TEMA EDUNGEON: ARCANE DUNGEON ACADEMY - GENSHIN INSPIRED]
+        background: "#0d131d",
+        surface: "#151d2a",
+        "surface-alt": "#1c2637",
+        "surface-light": "#26344b",
+        border: "#28374f",
+        "border-strong": "#3b4f70",
+
+        text: "#f1f5f9",
+        subtext: "#9cb0c9",
+        "text-muted": "#9cb0c9",
+
+        primary: "#48bfe3",
+        "primary-dark": "#0096c7",
+        "accent-gold": "#f3c05b",
+        secondary: "#627d98",
+
+        success: "#34d399",
+        danger: "#f87171",
+        warning: "#fbbf24",
+        locked: "#485b75",
+
+        // [TOKEN BELAJAR SPESIFIK - MATEMATIKA NYAMAN DIBACA]
+        "reading-bg": "#0d131d",
+        "formula-bg": "#121926",
+        "formula-border": "#2a3952",
+        "callout-tip": "#38bdf8",
+        "callout-warn": "#fbbf24",
+        "callout-info": "#a78bfa",
+
+        // [TOKEN GAMIFIKASI BERSAMA - ROGUELIKE DUNGEON]
+        hp: "#f43f5e",
+        exp: "#f3c05b",
+        boss: "#c084fc",
+        shield: "#38bdf8",
+        mana: "#22d3ee",
+        dodge: "#34d399",
       },
     },
   },

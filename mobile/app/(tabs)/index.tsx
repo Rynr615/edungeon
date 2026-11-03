@@ -1,48 +1,105 @@
 // mobile/app/(tabs)/index.tsx
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, ScrollView, RefreshControl } from "react-native";
+import { useRouter } from "expo-router";
 import { Header } from "../../components/ui/Header";
-import { Card } from "../../components/ui/Card";
-import { ProgressBar } from "../../components/ui/ProgressBar";
-import { Icon } from "../../components/ui/Icon";
+import { UserGreetingBar } from "../../components/home/UserGreetingBar";
+import { ContinueLearningCard } from "../../components/home/ContinueLearningCard";
+import { CurriculumSummaryCard } from "../../components/home/CurriculumSummaryCard";
+import { ModuleList } from "../../components/home/ModuleList";
+import { ScreenSkeleton } from "../../components/home/ScreenSkeleton";
+import { ErrorState } from "../../components/home/ErrorState";
+import { EmptyState } from "../../components/home/EmptyState";
+import { useModules } from "../../hooks/useModules";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const {
+    modules,
+    loading,
+    refreshing,
+    error,
+    completedCount,
+    totalModules,
+    totalProgressPercentage,
+    lastLearned,
+    userProfile,
+    refreshModules,
+    retry,
+  } = useModules();
+
+  const handleSelectModule = (moduleId: string) => {
+    router.push(`/module/${moduleId}`);
+  };
+
+  const handleResumeLearning = (moduleId: string, subBabId: string) => {
+    router.push(`/module/${moduleId}?subBabId=${subBabId}`);
+  };
+
   return (
     <View className="flex-1 bg-background">
-      <Header />
-      <ScrollView className="flex-1 px-6 pt-4">
-        <Card className="mb-6">
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-text font-bold text-base">Main Progress</Text>
-            <Text className="text-primary font-bold text-xs">Modul 1/5</Text>
-          </View>
-          <ProgressBar progress={20} label="Progres Keseluruhan" />
-        </Card>
+      <Header title="Edungeon" />
 
-        <Text className="text-text font-bold text-lg mb-3">Modul Pembelajaran</Text>
+      {loading ? (
+        <ScreenSkeleton />
+      ) : error ? (
+        <ScrollView
+          className="flex-1"
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refreshModules}
+              tintColor="#38bdf8"
+            />
+          }
+        >
+          <ErrorState message={error} onRetry={retry} />
+        </ScrollView>
+      ) : (
+        <ScrollView
+          className="flex-1 px-5 pt-3"
+          contentContainerStyle={{ maxWidth: 768, width: "100%", alignSelf: "center" }}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refreshModules}
+              tintColor="#38bdf8"
+            />
+          }
+        >
+          {/* 1. Bar Sapaan & Status Gamifikasi Siswa */}
+          <UserGreetingBar
+            name={userProfile?.nama || "Petualang"}
+            studentClass={userProfile?.kelas || "Kelas X"}
+            level={Math.floor((userProfile?.total_exp || 0) / 100) + 1}
+            totalExp={userProfile?.total_exp || 0}
+          />
 
-        <Card className="mb-4 flex-row items-center justify-between">
-          <View className="flex-1 mr-3">
-            <Text className="text-text font-bold text-base">Modul 1</Text>
-            <Text className="text-subtext text-xs mt-0.5">Eksponen dan Logaritma</Text>
-          </View>
-          <View className="bg-primary px-3 py-1.5 rounded-lg flex-row items-center">
-            <Icon name="PlayIcon" variant="solid" size={16} color="#ffffff" />
-            <Text className="text-text text-xs font-bold ml-1">Mulai</Text>
-          </View>
-        </Card>
+          {/* 2. Kartu Aksi Utama: Lanjutkan Petualangan Belajar */}
+          <ContinueLearningCard
+            lastLearned={lastLearned}
+            onResume={handleResumeLearning}
+          />
 
-        <Card className="mb-4 flex-row items-center justify-between opacity-60">
-          <View className="flex-1 mr-3">
-            <Text className="text-text font-bold text-base">Modul 2</Text>
-            <Text className="text-subtext text-xs mt-0.5">Algoritma dan Pemrograman</Text>
-          </View>
-          <View className="bg-surface-light px-3 py-1.5 rounded-lg flex-row items-center">
-            <Icon name="LockClosedIcon" variant="solid" size={16} color="#94a3b8" />
-            <Text className="text-subtext text-xs font-bold ml-1">Terkunci</Text>
-          </View>
-        </Card>
-      </ScrollView>
+          {/* 3. Ringkasan Progres Kurikulum */}
+          <CurriculumSummaryCard
+            completedCount={completedCount}
+            totalModules={totalModules}
+            progressPercentage={totalProgressPercentage}
+          />
+
+          {/* 4. Daftar Kurikulum Modul (Roadmap Spine) */}
+          {modules.length === 0 ? (
+            <EmptyState onAction={refreshModules} />
+          ) : (
+            <ModuleList
+              modules={modules}
+              onSelectModule={handleSelectModule}
+            />
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }
